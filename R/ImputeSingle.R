@@ -93,6 +93,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
   count_path <- paste0(outputFile_path, "raw_data.csv")
 
   # Run scImpute
+  print("========================= Running scImpute =========================")
   scimpute(# full path to raw count matrix
     count_path = count_path,
     infile = "csv",              # format of input file
@@ -104,6 +105,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
     labels = labels,             # Each cell type should have at least two cells for imputation
     ncores = 1)                  # number of cores used in parallel computation
   counts_scImpute <- read.csv(file = paste0(tempFile_path, "scimpute_count.csv"), header = TRUE, row.names = 1)
+  print("========================= scImpute finished ========================")
 
   # # Run SAVER and MAGIC
   # library(doParallel)
@@ -143,7 +145,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
     dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), FUN = estDropoutNum, BPPARAM = BPPARAM))
   }
 
-  # ZINB MLE of each cluster gene by gene
+  # Processing data by cell clusters
   ZINB_parameters_list <- list()
   P_dropout_cc_list <- list()
   P_dropout_mat <- NULL
@@ -192,6 +194,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
   colnames(P_dropout_mat) <- paste0("CellCluster_", 1:nclust)
 
   # Get whether_impute matrix for counts
+  saveRDS(whether_impute, file = paste0(tempFile_path, "whether_impute.rds"))
   whether_impute_iz <- whether_impute
   whether_impute_inz <- whether_impute
   whether_impute_inz[counts != 0] <- TRUE
