@@ -5,7 +5,7 @@ estDropoutNum <- function(sample){
   histCounts <- cbind(as.numeric(names(table(sample))), as.numeric(unname(table(sample))))
   histCounts <- histCounts[-1,]
   colnames(histCounts) <- c("j", "n_j")
-  preseqR <- ztnb.mincount(histCounts)
+  preseqR <- ztnb.rSAC(histCounts)
   geneNumPredict <- round(preseqR(1e30))
   dropoutNum <- geneNumPredict - sum(sample != 0)
   return(dropoutNum)
