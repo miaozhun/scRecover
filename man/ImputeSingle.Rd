@@ -4,7 +4,8 @@
 \alias{ImputeSingle}
 \title{ImputeSingle: Imputation for single-cell RNA-seq data}
 \usage{
-ImputeSingle(counts, Kcluster = NULL, labels = NULL, parallel = FALSE,
+ImputeSingle(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
+  depth = 100, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE,
   BPPARAM = bpparam())
 }
 \arguments{
@@ -14,12 +15,20 @@ ImputeSingle(counts, Kcluster = NULL, labels = NULL, parallel = FALSE,
 
 \item{labels}{A character/integer vector specifying the cell type of each column in the raw count matrix. Only needed when \code{Kcluster = NULL}. Each cell type should have at least two cells for imputation.}
 
+\item{outputDir}{The output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.}
+
+\item{depth}{Relative sequencing depth comparing with the initial sample, default is 100.}
+
+\item{SAVER}{Whether use SAVER, default is FALSE.}
+
+\item{MAGIC}{Whether use MAGIC, default is FALSE.}
+
 \item{parallel}{If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.}
 
 \item{BPPARAM}{An optional parameter object passed internally to \code{\link{bplapply}} when \code{parallel=TRUE}. If not specified, \code{\link{bpparam}()} (default) will be used.}
 }
 \value{
-Imputed counts matrices will be saved in a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory.
+Imputed counts matrices will be saved in the output directory.
 }
 \description{
 This function is used to impute missing values in single-cell RNA-seq (scRNA-seq) data. It takes a non-negative matrix of scRNA-seq raw read counts or a \code{SingleCellExperiment} object as input. So users should map the reads (obtained from sequencing libraries of the samples) to the corresponding genome and count the reads mapped to each gene according to the gene annotation to get the raw read counts matrix in advance.
