@@ -1,8 +1,8 @@
 Package: ImputeSingle
 Type: Package
 Title: Imputation for single-cell RNA-seq data
-Version: 0.1.0
-Date: 2018-07-13
+Version: 0.1.1
+Date: 2018-07-23
 Author: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
 Maintainer: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
 Description: Imputation for single-cell RNA-seq data.
@@ -22,6 +22,7 @@ Imports:
     scImpute (>= 0.0.6),
     SAVER (>= 1.0.0),
     Rmagic (>= 0.1.0),
+    doParallel (>= 1.0.11),
     BiocParallel (>= 1.12.0),
     SingleCellExperiment (>= 1.0.0)
 Suggests:
