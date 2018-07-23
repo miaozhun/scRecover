@@ -132,18 +132,18 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
   # Run SAVER and MAGIC
   if(SAVER == TRUE){
     if(!parallel){
-      counts_SAVER <- saver(counts_raw)
+      counts_SAVER <- saver(counts)
     }else{
       cl <- makeCluster(detectCores() - 2, outfile = "")
       registerDoParallel(cl)
-      counts_SAVER <- saver(counts_raw)
+      counts_SAVER <- saver(counts)
       stopCluster(cl)
     }
     counts_SAVER <- counts_SAVER$estimate
     write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
   }
   if(MAGIC == TRUE){
-    counts_MAGIC <- run_magic(counts_raw, t = 6)
+    counts_MAGIC <- run_magic(counts, t = 6)
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
   }
 
