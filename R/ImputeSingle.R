@@ -5,10 +5,14 @@
 #' @param counts A non-negative integer matrix of scRNA-seq raw read counts or a \code{SingleCellExperiment} object which contains the read counts matrix. The rows of the matrix are genes and columns are samples/cells.
 #' @param Kcluster An integer specifying the number of cell subpopulations. This parameter can be determined based on prior knowledge or clustering of raw data. \code{Kcluster} is used to determine the candidate neighbors of each cell.
 #' @param labels A character/integer vector specifying the cell type of each column in the raw count matrix. Only needed when \code{Kcluster = NULL}. Each cell type should have at least two cells for imputation.
+#' @param outputDir The output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.
+#' @param depth Relative sequencing depth comparing with the initial sample, default is 100.
+#' @param SAVER Whether use SAVER, default is FALSE.
+#' @param MAGIC Whether use MAGIC, default is FALSE.
 #' @param parallel If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.
 #' @param BPPARAM An optional parameter object passed internally to \code{\link{bplapply}} when \code{parallel=TRUE}. If not specified, \code{\link{bpparam}()} (default) will be used.
 #' @return
-#' Imputed counts matrices will be saved in a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory.
+#' Imputed counts matrices will be saved in the output directory.
 #'
 #' @author Zhun Miao.
 #' @seealso
@@ -27,6 +31,7 @@
 #' @import stats
 #' @import BiocParallel
 #' @import SingleCellExperiment
+#' @importFrom doParallel detectCores makeCluster registerDoParallel stopCluster
 #' @importFrom utils read.csv write.csv
 #' @importFrom MASS glm.nb fitdistr
 #' @importFrom pscl zeroinfl
@@ -40,7 +45,7 @@
 
 
 
-ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALSE, BPPARAM = bpparam()){
+ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, depth = 100, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE, BPPARAM = bpparam()){
 
   # Handle for SingleCellExperiment
   if(class(counts)[1] == "SingleCellExperiment")
@@ -79,18 +84,34 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
       stop("Too few cells (< 2) in a cluster of 'labels'")
   }
 
+  if(!is.numeric(depth))
+    stop("Data type of 'depth' is not numeric")
+  if(length(depth) != 1)
+    stop("Length of 'depth' is not one")
+
+  if(!is.logical(SAVER))
+    stop("Data type of 'SAVER' is not logical")
+  if(length(SAVER) != 1)
+    stop("Length of 'SAVER' is not one")
+
+  if(!is.logical(MAGIC))
+    stop("Data type of 'MAGIC' is not logical")
+  if(length(MAGIC) != 1)
+    stop("Length of 'MAGIC' is not one")
+
   if(!is.logical(parallel))
     stop("Data type of 'parallel' is not logical")
   if(length(parallel) != 1)
     stop("Length of 'parallel' is not one")
 
   # File path
-  outputFile_path <- paste0("./outputFile_ImputeSingle_", gsub(" ", "-", gsub(":", "-", Sys.time())), "/")
-  tempFile_path <- paste0(outputFile_path, "tempFile/")
-  dir.create(outputFile_path, showWarnings = FALSE)
-  dir.create(tempFile_path, showWarnings = FALSE)
-  write.csv(counts, file = paste0(outputFile_path, "raw_data.csv"))
-  count_path <- paste0(outputFile_path, "raw_data.csv")
+  if(is.null(outputDir))
+    outputDir <- paste0("./outputFile_ImputeSingle_", gsub(" ", "-", gsub(":", "-", Sys.time())), "/")
+  tempFileDir <- paste0(outputDir, "tempFile/")
+  dir.create(outputDir, showWarnings = FALSE)
+  dir.create(tempFileDir, showWarnings = FALSE)
+  write.csv(counts, file = paste0(outputDir, "raw_data.csv"))
+  count_path <- paste0(outputDir, "raw_data.csv")
 
   # Run scImpute
   print("========================= Running scImpute =========================")
@@ -98,29 +119,36 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
     count_path = count_path,
     infile = "csv",              # format of input file
     outfile = "csv",             # format of output file
-    out_dir = tempFile_path,     # full path to output directory
+    out_dir = tempFileDir,       # full path to output directory
     labeled = is.null(Kcluster), # cell type labels not available
     drop_thre = 0.5,             # threshold set on dropout probability
     Kcluster = Kcluster,         # 2 cell subpopulations
     labels = labels,             # Each cell type should have at least two cells for imputation
     ncores = 1)                  # number of cores used in parallel computation
-  counts_scImpute <- read.csv(file = paste0(tempFile_path, "scimpute_count.csv"), header = TRUE, row.names = 1)
+  counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
-  # # Run SAVER and MAGIC
-  # library(doParallel)
-  # cl <- makeCluster(4, outfile = "")
-  # registerDoParallel(cl)
-  # counts_SAVER <- saver(counts_raw)
-  # stopCluster(cl)
-  # counts_SAVER <- counts_SAVER$estimate
-  # counts_MAGIC <- run_magic(counts_raw, t = 6)
-  # write.csv(counts_SAVER, file = paste0(tempFile_path, "SAVER_count.csv"))
-  # write.csv(counts_MAGIC, file = paste0(tempFile_path, "MAGIC_count.csv"))
+  # Run SAVER and MAGIC
+  if(SAVER == TRUE){
+    if(!parallel){
+      counts_SAVER <- saver(counts_raw)
+    }else{
+      cl <- makeCluster(detectCores() - 2, outfile = "")
+      registerDoParallel(cl)
+      counts_SAVER <- saver(counts_raw)
+      stopCluster(cl)
+    }
+    counts_SAVER <- counts_SAVER$estimate
+    write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
+  }
+  if(MAGIC == TRUE){
+    counts_MAGIC <- run_magic(counts_raw, t = 6)
+    write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
+  }
 
   # Get cluster information
   if(is.null(labels))
-    clust <- readRDS(paste0(tempFile_path, "clust.rds"))
+    clust <- readRDS(paste0(tempFileDir, "clust.rds"))
   if(!is.null(labels))
     clust <- labels
   names(clust) <- colnames(counts)
@@ -137,12 +165,12 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
   if(!parallel){
     for(i in 1:ncol(counts_used)){
       cat("\r",paste0("ImputeSingle is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells"))
-      dropoutNum <- c(dropoutNum, estDropoutNum(counts_used[,i]))
+      dropoutNum <- c(dropoutNum, estDropoutNum(counts_used[,i], depth))
     }
     names(dropoutNum) <- colnames(counts_used)
   }else{
     message("ImputeSingle is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells")
-    dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), FUN = estDropoutNum, BPPARAM = BPPARAM))
+    dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), depth, FUN = estDropoutNum, BPPARAM = BPPARAM))
   }
 
   # Processing data by cell clusters
@@ -194,28 +222,35 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, parallel = FALS
   colnames(P_dropout_mat) <- paste0("CellCluster_", 1:nclust)
 
   # Get whether_impute matrix for counts
-  saveRDS(whether_impute, file = paste0(tempFile_path, "whether_impute.rds"))
   whether_impute_iz <- whether_impute
+  whether_impute_iz[counts != 0] <- FALSE
   whether_impute_inz <- whether_impute
   whether_impute_inz[counts != 0] <- TRUE
+  save(dropoutNum, whether_impute_iz, whether_impute_inz, file = paste0(tempFileDir, "IntermediateVariables.Rdata"))
 
   # Imputation with whether_impute to results of scImpute, SAVER and MAGIC
   counts_scImpute_iz <- counts + counts_scImpute * whether_impute_iz
   counts_scImpute_inz <- counts_scImpute * whether_impute_inz
-
-  # counts_SAVER_iz <- counts + counts_SAVER * whether_impute_iz
-  # counts_SAVER_inz <- counts_SAVER * whether_impute_inz
-  #
-  # counts_MAGIC_iz <- counts + counts_MAGIC * whether_impute_iz
-  # counts_MAGIC_inz <- counts_MAGIC * whether_impute_inz
+  if(SAVER == TRUE){
+    counts_SAVER_iz <- counts + counts_SAVER * whether_impute_iz
+    counts_SAVER_inz <- counts_SAVER * whether_impute_inz
+  }
+  if(MAGIC == TRUE){
+    counts_MAGIC_iz <- counts + counts_MAGIC * whether_impute_iz
+    counts_MAGIC_inz <- counts_MAGIC * whether_impute_inz
+  }
 
   # Output files
-  write.csv(counts_scImpute_iz, file = paste0(outputFile_path, "counts_scImpute_iz.csv"))
-  write.csv(counts_scImpute_inz, file = paste0(outputFile_path, "counts_scImpute_inz.csv"))
-  # write.csv(counts_SAVER_iz, file = paste0(outputFile_path, "counts_SAVER_iz.csv"))
-  # write.csv(counts_SAVER_inz, file = paste0(outputFile_path, "counts_SAVER_inz.csv"))
-  # write.csv(counts_MAGIC_iz, file = paste0(outputFile_path, "counts_MAGIC_iz.csv"))
-  # write.csv(counts_MAGIC_inz, file = paste0(outputFile_path, "counts_MAGIC_inz.csv"))
+  write.csv(counts_scImpute_iz, file = paste0(outputDir, "counts_scImpute_iz.csv"))
+  write.csv(counts_scImpute_inz, file = paste0(outputDir, "counts_scImpute_inz.csv"))
+  if(SAVER == TRUE){
+    write.csv(counts_SAVER_iz, file = paste0(outputDir, "counts_SAVER_iz.csv"))
+    write.csv(counts_SAVER_inz, file = paste0(outputDir, "counts_SAVER_inz.csv"))
+  }
+  if(MAGIC == TRUE){
+    write.csv(counts_MAGIC_iz, file = paste0(outputDir, "counts_MAGIC_iz.csv"))
+    write.csv(counts_MAGIC_inz, file = paste0(outputDir, "counts_MAGIC_inz.csv"))
+  }
 
 
 }
