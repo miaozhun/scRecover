@@ -14,6 +14,7 @@ Depends: R (>= 3.4.0)
 Imports:
     stats,
     utils,
+    parallel,
     MASS (>= 7.3-45),
     pscl (>= 1.4.9),
     bbmle (>= 1.0.18),
