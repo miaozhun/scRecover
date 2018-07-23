@@ -31,7 +31,8 @@
 #' @import stats
 #' @import BiocParallel
 #' @import SingleCellExperiment
-#' @importFrom doParallel detectCores makeCluster registerDoParallel stopCluster
+#' @importFrom parallel detectCores makeCluster stopCluster
+#' @importFrom doParallel registerDoParallel
 #' @importFrom utils read.csv write.csv
 #' @importFrom MASS glm.nb fitdistr
 #' @importFrom pscl zeroinfl
