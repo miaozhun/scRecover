@@ -4,7 +4,8 @@
 \alias{ImputeSingle}
 \title{ImputeSingle: Imputation for single-cell RNA-seq data}
 \usage{
-ImputeSingle(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
+ImputeSingle(counts, Kcluster = NULL, labels = NULL, UMI = FALSE,
+  hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL,
   depth = 100, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE,
   BPPARAM = bpparam())
 }
@@ -14,6 +15,12 @@ ImputeSingle(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
 \item{Kcluster}{An integer specifying the number of cell subpopulations. This parameter can be determined based on prior knowledge or clustering of raw data. \code{Kcluster} is used to determine the candidate neighbors of each cell.}
 
 \item{labels}{A character/integer vector specifying the cell type of each column in the raw count matrix. Only needed when \code{Kcluster = NULL}. Each cell type should have at least two cells for imputation.}
+
+\item{UMI}{Whether \code{counts} is UMI counts, default is FALSE. If TRUE, \code{hist_raw_counts} and \code{hist_RUG_counts} must be specified.}
+
+\item{hist_raw_counts}{A list contains the hist raw counts of each cell in \code{counts}.}
+
+\item{hist_RUG_counts}{A list contains the hist RUG counts of each cell in \code{counts}.}
 
 \item{outputDir}{The output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.}
 
