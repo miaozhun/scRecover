@@ -145,7 +145,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     drop_thre = 0.5,              # threshold set on dropout probability
     Kcluster = Kcluster,          # 2 cell subpopulations
     labels = labels,              # Each cell type should have at least two cells for imputation
-    ncores = 1                    # number of cores used in parallel computation
+    ncores = 1)                   # number of cores used in parallel computation
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
