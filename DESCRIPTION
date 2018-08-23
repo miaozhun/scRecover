@@ -32,8 +32,7 @@ Suggests:
     SingleCellExperiment
 Remotes:
     Vivianstats/scImpute,
-    mohuangx/SAVER,
-    KrishnaswamyLab/MAGIC/R
+    mohuangx/SAVER
 VignetteBuilder: knitr
 URL: https://github.com/miaozhun/ImputeSingle
 biocViews: GeneExpression, SingleCell, RNASeq, Transcriptomics, Sequencing, Preprocessing, Software
