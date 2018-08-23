@@ -5,6 +5,9 @@
 #' @param counts A non-negative integer matrix of scRNA-seq raw read counts or a \code{SingleCellExperiment} object which contains the read counts matrix. The rows of the matrix are genes and columns are samples/cells.
 #' @param Kcluster An integer specifying the number of cell subpopulations. This parameter can be determined based on prior knowledge or clustering of raw data. \code{Kcluster} is used to determine the candidate neighbors of each cell.
 #' @param labels A character/integer vector specifying the cell type of each column in the raw count matrix. Only needed when \code{Kcluster = NULL}. Each cell type should have at least two cells for imputation.
+#' @param UMI Whether \code{counts} is UMI counts, default is FALSE. If TRUE, \code{hist_raw_counts} and \code{hist_RUG_counts} must be specified.
+#' @param hist_raw_counts A list contains the hist raw counts of each cell in \code{counts}.
+#' @param hist_RUG_counts A list contains the hist RUG counts of each cell in \code{counts}.
 #' @param outputDir The output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.
 #' @param depth Relative sequencing depth comparing with the initial sample, default is 100.
 #' @param SAVER Whether use SAVER, default is FALSE.
@@ -29,11 +32,9 @@
 #' ImputeSingle(counts = counts, labels = labels, parallel = TRUE)
 #'
 #' @import stats
-#' @import BiocParallel
-#' @import SingleCellExperiment
-#' @importFrom parallel detectCores makeCluster stopCluster
-#' @importFrom doParallel registerDoParallel
 #' @importFrom utils read.csv write.csv
+#' @importFrom parallel detectCores makeCluster stopCluster
+#' @importFrom Matrix Matrix
 #' @importFrom MASS glm.nb fitdistr
 #' @importFrom pscl zeroinfl
 #' @importFrom bbmle mle2
@@ -41,19 +42,24 @@
 #' @importFrom preseqR ztnb.rSAC
 #' @importFrom scImpute scimpute
 #' @importFrom SAVER saver
-#' @importFrom Rmagic run_magic
+#' @importFrom Rmagic magic
+#' @importFrom doParallel registerDoParallel
+#' @importFrom BiocParallel bpparam bplapply
 #' @export
 
 
 
-ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, depth = 100, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE, BPPARAM = bpparam()){
+ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL, depth = 100, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE, BPPARAM = bpparam()){
 
-  # Handle for SingleCellExperiment
-  if(class(counts)[1] == "SingleCellExperiment")
+  # Handle SingleCellExperiment
+  if(class(counts)[1] == "SingleCellExperiment"){
+    if(!require(SingleCellExperiment))
+      stop("To use SingleCellExperiment as input, you should install the package firstly")
     counts <- counts(counts)
+  }
 
   # Invalid input control
-  if(!is.matrix(counts) & !is.data.frame(counts))
+  if(!is.matrix(counts) & !is.data.frame(counts) & class(counts)[1] != "dgCMatrix")
     stop("Wrong data type of 'counts'")
   if(sum(is.na(counts)) > 0)
     stop("NA detected in 'counts'")
@@ -83,6 +89,20 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
       stop("Length of 'labels' must equal to column number of 'counts'")
     if(min(table(labels)) < 2)
       stop("Too few cells (< 2) in a cluster of 'labels'")
+  }
+
+  if(!is.logical(UMI))
+    stop("Data type of 'UMI' is not logical")
+  if(length(UMI) != 1)
+    stop("Length of 'UMI' is not one")
+
+  if(UMI == TRUE){
+    if(is.null(hist_raw_counts) | is.null(hist_RUG_counts))
+      stop("'hist_raw_counts' and 'hist_RUG_counts' must be specified if UMI == TRUE")
+    if(!is.list(hist_raw_counts) | !is.list(hist_RUG_counts))
+      stop("'hist_raw_counts' and 'hist_RUG_counts' must be lists")
+    if(length(hist_raw_counts) != ncol(counts) | length(hist_RUG_counts) != ncol(counts))
+      stop("'hist_raw_counts' and 'hist_RUG_counts' must have length equal to column number of 'counts'")
   }
 
   if(!is.numeric(depth))
@@ -118,14 +138,14 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
   print("========================= Running scImpute =========================")
   scimpute(# full path to raw count matrix
     count_path = count_path,
-    infile = "csv",              # format of input file
-    outfile = "csv",             # format of output file
-    out_dir = tempFileDir,       # full path to output directory
-    labeled = is.null(Kcluster), # cell type labels not available
-    drop_thre = 0.5,             # threshold set on dropout probability
-    Kcluster = Kcluster,         # 2 cell subpopulations
-    labels = labels,             # Each cell type should have at least two cells for imputation
-    ncores = 1)                  # number of cores used in parallel computation
+    infile = "csv",                                  # format of input file
+    outfile = "csv",                                 # format of output file
+    out_dir = tempFileDir,                           # full path to output directory
+    labeled = is.null(Kcluster),                     # cell type labels not available
+    drop_thre = 0.5,                                 # threshold set on dropout probability
+    Kcluster = Kcluster,                             # 2 cell subpopulations
+    labels = labels,                                 # Each cell type should have at least two cells for imputation
+    ncores = if(!parallel) 1 else detectCores() - 2) # number of cores used in parallel computation
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
@@ -143,7 +163,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
     write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
   }
   if(MAGIC == TRUE){
-    counts_MAGIC <- run_magic(counts, t = 6)
+    counts_MAGIC <- magic(counts, n.jobs = if(!parallel) 1 else -3)
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
   }
 
@@ -158,20 +178,49 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
   # Eliminate outliers and normalization
   counts_used <- counts[,!is.na(clust)]
   counts_norm <- normalization(counts_used)
+  hist_raw_counts <- hist_raw_counts[colnames(counts_used)]
+  hist_RUG_counts <- hist_RUG_counts[colnames(counts_used)]
   whether_impute <- counts
   whether_impute[,] <- FALSE
 
-  # # Estimate dropout gene number in each cell
-  dropoutNum <- NULL
-  if(!parallel){
-    for(i in 1:ncol(counts_used)){
-      cat("\r",paste0("ImputeSingle is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells"))
-      dropoutNum <- c(dropoutNum, estDropoutNum(counts_used[,i], depth))
+  # Estimate dropout number in each cell
+  if(!UMI){
+    dropoutNum <- NULL
+    if(!parallel){
+      for(i in 1:ncol(counts_used)){
+        cat("\r",paste0("ImputeSingle is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells"))
+        dropoutNum <- c(dropoutNum, estDropoutNum(sample = counts_used[,i], histCounts = NULL, depth = depth, return = "dropoutNum"))
+      }
+      names(dropoutNum) <- colnames(counts_used)
+    }else{
+      message("ImputeSingle is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells")
+      dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), histCounts = NULL, depth = depth, return = "dropoutNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
     }
-    names(dropoutNum) <- colnames(counts_used)
-  }else{
-    message("ImputeSingle is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells")
-    dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), depth, FUN = estDropoutNum, BPPARAM = BPPARAM))
+  }
+
+  # Estimate dropout number and transcript number in each cell (UMI)
+  if(UMI){
+    dropoutNum <- NULL
+    transcriptNum <- NULL
+    if(!parallel){
+      for(i in 1:ncol(counts_used)){
+        cat("\r",paste0("ImputeSingle is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
+        dropoutNum <- c(dropoutNum, estDropoutNum(sample = NULL, histCounts = hist_raw_counts[[i]], depth = depth, return = "dropoutNum"))
+      }
+      names(dropoutNum) <- colnames(counts_used)
+
+      for(i in 1:ncol(counts_used)){
+        cat("\r",paste0("ImputeSingle is estimating transcript gene number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
+        transcriptNum <- c(transcriptNum, estDropoutNum(sample = NULL, histCounts = hist_RUG_counts[[i]], depth = depth, return = "transcriptNum"))
+      }
+      names(transcriptNum) <- colnames(counts_used)
+    }else{
+      message("ImputeSingle is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells (UMI)")
+      dropoutNum <- do.call(c, bplapply(hist_raw_counts, sample = NULL, depth = depth, return = "dropoutNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
+
+      message("ImputeSingle is estimating transcript gene number in ", ncol(counts_used), " non-outlier cells (UMI)")
+      transcriptNum <- do.call(c, bplapply(hist_RUG_counts, sample = NULL, depth = depth, return = "transcriptNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
+    }
   }
 
   # Processing data by cell clusters
@@ -227,18 +276,36 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
   whether_impute_iz[counts != 0] <- FALSE
   whether_impute_inz <- whether_impute
   whether_impute_inz[counts != 0] <- TRUE
-  save(dropoutNum, whether_impute_iz, whether_impute_inz, file = paste0(tempFileDir, "IntermediateVariables.Rdata"))
+  if(!UMI)
+    save(dropoutNum, whether_impute_iz, whether_impute_inz, file = paste0(tempFileDir, "IntermediateVariables.Rdata"))
+  if(UMI)
+    save(dropoutNum, transcriptNum, whether_impute_iz, whether_impute_inz, file = paste0(tempFileDir, "IntermediateVariables.Rdata"))
 
   # Imputation with whether_impute to results of scImpute, SAVER and MAGIC
-  counts_scImpute_iz <- counts + counts_scImpute * whether_impute_iz
-  counts_scImpute_inz <- counts_scImpute * whether_impute_inz
+  counts_scImpute_iz <- as.matrix(counts + counts_scImpute * whether_impute_iz)
+  counts_scImpute_inz <- as.matrix(counts_scImpute * whether_impute_inz)
   if(SAVER == TRUE){
-    counts_SAVER_iz <- counts + counts_SAVER * whether_impute_iz
-    counts_SAVER_inz <- counts_SAVER * whether_impute_inz
+    counts_SAVER_iz <- as.matrix(counts + counts_SAVER * whether_impute_iz)
+    counts_SAVER_inz <- as.matrix(counts_SAVER * whether_impute_inz)
   }
   if(MAGIC == TRUE){
-    counts_MAGIC_iz <- counts + counts_MAGIC * whether_impute_iz
-    counts_MAGIC_inz <- counts_MAGIC * whether_impute_inz
+    counts_MAGIC_iz <- as.matrix(counts + counts_MAGIC * whether_impute_iz)
+    counts_MAGIC_inz <- as.matrix(counts_MAGIC * whether_impute_inz)
+  }
+
+  if(UMI){
+    transcriptNum_all <- colSums(counts)
+    transcriptNum_all[names(transcriptNum)] <- transcriptNum
+    counts_scImpute_iz <- counts_scImpute_iz %*% diag(transcriptNum_all/colSums(counts_scImpute_iz))
+    counts_scImpute_inz <- counts_scImpute_inz %*% diag(transcriptNum_all/colSums(counts_scImpute_inz))
+    if(SAVER == TRUE){
+      counts_SAVER_iz <- counts_SAVER_iz %*% diag(transcriptNum_all/colSums(counts_SAVER_iz))
+      counts_SAVER_inz <- counts_SAVER_inz %*% diag(transcriptNum_all/colSums(counts_SAVER_inz))
+    }
+    if(MAGIC == TRUE){
+      counts_MAGIC_iz <- counts_MAGIC_iz %*% diag(transcriptNum_all/colSums(counts_MAGIC_iz))
+      counts_MAGIC_inz <- counts_MAGIC_inz %*% diag(transcriptNum_all/colSums(counts_MAGIC_inz))
+    }
   }
 
   # Output files
@@ -255,6 +322,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
 
 
 }
+
 
 
 
