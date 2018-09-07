@@ -1,6 +1,5 @@
 # Estimate dropout gene number in a cell
 estDropoutNum <- function(sample = NULL, histCounts = NULL, depth = 100, return = "dropoutNum"){
-  library(preseqR)
   if(!is.null(sample)){
     sample <- as.numeric(sample)
     sample <- ceiling(sample)
