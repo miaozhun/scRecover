@@ -6,7 +6,7 @@
 \usage{
 ImputeSingle(counts, Kcluster = NULL, labels = NULL, UMI = FALSE,
   hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL,
-  depth = 100, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE,
+  depth = 20, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE,
   BPPARAM = bpparam())
 }
 \arguments{
@@ -24,7 +24,7 @@ ImputeSingle(counts, Kcluster = NULL, labels = NULL, UMI = FALSE,
 
 \item{outputDir}{The output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.}
 
-\item{depth}{Relative sequencing depth comparing with the initial sample, default is 100.}
+\item{depth}{Relative sequencing depth comparing with the initial sample, default is 20.}
 
 \item{SAVER}{Whether use SAVER, default is FALSE.}
 
