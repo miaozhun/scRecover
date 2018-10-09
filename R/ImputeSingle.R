@@ -9,7 +9,7 @@
 #' @param hist_raw_counts A list contains the hist raw counts of each cell in \code{counts}.
 #' @param hist_RUG_counts A list contains the hist RUG counts of each cell in \code{counts}.
 #' @param outputDir The output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.
-#' @param depth Relative sequencing depth comparing with the initial sample, default is 100.
+#' @param depth Relative sequencing depth comparing with the initial sample, default is 20.
 #' @param SAVER Whether use SAVER, default is FALSE.
 #' @param MAGIC Whether use MAGIC, default is FALSE.
 #' @param parallel If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.
@@ -33,7 +33,7 @@
 #'
 #' @import stats
 #' @importFrom utils read.csv write.csv
-#' @importFrom parallel detectCores makeCluster stopCluster
+#' @importFrom parallel detectCores
 #' @importFrom Matrix Matrix
 #' @importFrom MASS glm.nb fitdistr
 #' @importFrom pscl zeroinfl
@@ -43,13 +43,12 @@
 #' @importFrom scImpute scimpute
 #' @importFrom SAVER saver
 #' @importFrom Rmagic magic
-#' @importFrom doParallel registerDoParallel
 #' @importFrom BiocParallel bpparam bplapply
 #' @export
 
 
 
-ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL, depth = 100, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE, BPPARAM = bpparam()){
+ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE, BPPARAM = bpparam()){
 
   # Handle SingleCellExperiment
   if(class(counts)[1] == "SingleCellExperiment"){
@@ -137,34 +136,33 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   # Run scImpute
   print("========================= Running scImpute =========================")
   scimpute(
-    count_path = count_path,      # full path to raw count matrix
-    infile = "csv",               # format of input file
-    outfile = "csv",              # format of output file
-    out_dir = tempFileDir,        # full path to output directory
-    labeled = is.null(Kcluster),  # cell type labels not available
-    drop_thre = 0.5,              # threshold set on dropout probability
-    Kcluster = Kcluster,          # 2 cell subpopulations
-    labels = labels,              # Each cell type should have at least two cells for imputation
-    ncores = 1)                   # number of cores used in parallel computation
+    count_path = count_path,          # full path to raw count matrix
+    infile = "csv",                   # format of input file
+    outfile = "csv",                  # format of output file
+    out_dir = tempFileDir,            # full path to output directory
+    labeled = is.null(Kcluster),      # cell type labels not available
+    drop_thre = 0.5,                  # threshold set on dropout probability
+    Kcluster = Kcluster,              # 2 cell subpopulations
+    labels = labels,                  # Each cell type should have at least two cells for imputation
+    ncores = if(!parallel) 1 else detectCores() - 2)    # number of cores used in parallel computation
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
-  # Run SAVER and MAGIC
+  # Run SAVER
   if(SAVER == TRUE){
-    if(!parallel){
-      counts_SAVER <- saver(counts)
-    }else{
-      cl <- makeCluster(detectCores() - 2, outfile = "")
-      registerDoParallel(cl)
-      counts_SAVER <- saver(counts)
-      stopCluster(cl)
-    }
+    print("========================== Running SAVER ==========================")
+    counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)
     counts_SAVER <- counts_SAVER$estimate
     write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
+    print("========================== SAVER finished =========================")
   }
+
+  # Run MAGIC
   if(MAGIC == TRUE){
-    counts_MAGIC <- magic(counts, n.jobs = if(!parallel) 1 else -3)
+    print("========================== Running MAGIC ==========================")
+    counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3))
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
+    print("========================== MAGIC finished =========================")
   }
 
   # Get cluster information
