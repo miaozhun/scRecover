@@ -160,7 +160,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   # Run MAGIC
   if(MAGIC == TRUE){
     print("========================== Running MAGIC ==========================")
-    counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3))
+    counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
     print("========================== MAGIC finished =========================")
   }
