@@ -136,15 +136,15 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   # Run scImpute
   print("========================= Running scImpute =========================")
   scimpute(
-    count_path = count_path,          # full path to raw count matrix
-    infile = "csv",                   # format of input file
-    outfile = "csv",                  # format of output file
-    out_dir = tempFileDir,            # full path to output directory
-    labeled = is.null(Kcluster),      # cell type labels not available
-    drop_thre = 0.5,                  # threshold set on dropout probability
-    Kcluster = Kcluster,              # 2 cell subpopulations
-    labels = labels,                  # Each cell type should have at least two cells for imputation
-    ncores = if(!parallel) 1 else detectCores() - 2)    # number of cores used in parallel computation
+    count_path = count_path,      # full path to raw count matrix
+    infile = "csv",               # format of input file
+    outfile = "csv",              # format of output file
+    out_dir = tempFileDir,        # full path to output directory
+    labeled = is.null(Kcluster),  # cell type labels not available
+    drop_thre = 0.5,              # threshold set on dropout probability
+    Kcluster = Kcluster,          # 2 cell subpopulations
+    labels = labels,              # Each cell type should have at least two cells for imputation
+    ncores = 1)                   # number of cores used in parallel computation
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
