@@ -145,7 +145,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     Kcluster = Kcluster,          # 2 cell subpopulations
     labels = labels,              # Each cell type should have at least two cells for imputation
     ncores = if(parallel & .Platform$OS.type != "windows") detectCores() - 2 else 1)    # number of cores used
-  counts_scImpute <- read.csv(file = paste0(tempFileDir, "scImpute.csv"), header = TRUE, row.names = 1)
+  counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
   # Run SAVER
@@ -153,7 +153,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     print("========================== Running SAVER ==========================")
     counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)
     counts_SAVER <- counts_SAVER$estimate
-    write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER.csv"))
+    write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
     print("========================== SAVER finished =========================")
   }
 
@@ -161,7 +161,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   if(MAGIC == TRUE){
     print("========================== Running MAGIC ==========================")
     counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
-    write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC.csv"))
+    write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
     print("========================== MAGIC finished =========================")
   }
 
@@ -208,7 +208,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
       names(dropoutNum) <- colnames(counts_used)
 
       for(i in 1:ncol(counts_used)){
-        cat("\r",paste0("ImputeSingle is estimating transcript gene number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
+        cat("\r",paste0("ImputeSingle is estimating transcript number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
         transcriptNum <- c(transcriptNum, estDropoutNum(sample = NULL, histCounts = hist_RUG_counts[[i]], depth = depth, return = "transcriptNum"))
       }
       names(transcriptNum) <- colnames(counts_used)
@@ -216,10 +216,14 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
       message("ImputeSingle is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells (UMI)")
       dropoutNum <- do.call(c, bplapply(hist_raw_counts, sample = NULL, depth = depth, return = "dropoutNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
 
-      message("ImputeSingle is estimating transcript gene number in ", ncol(counts_used), " non-outlier cells (UMI)")
+      message("ImputeSingle is estimating transcript number in ", ncol(counts_used), " non-outlier cells (UMI)")
       transcriptNum <- do.call(c, bplapply(hist_RUG_counts, sample = NULL, depth = depth, return = "transcriptNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
     }
+    saveRDS(transcriptNum, file = paste0(tempFileDir, "transcriptNum.rds"))
   }
+
+  # Save dropoutNum
+  saveRDS(dropoutNum, file = paste0(tempFileDir, "dropoutNum.rds"))
 
   # Processing data by cell clusters
   ZINB_parameters_list <- list()
@@ -274,10 +278,8 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   whether_impute_iz[counts != 0] <- FALSE
   whether_impute_inz <- whether_impute
   whether_impute_inz[counts != 0] <- TRUE
-  if(!UMI)
-    save(dropoutNum, whether_impute_iz, whether_impute_inz, file = paste0(tempFileDir, "IntermediateVariables.Rdata"))
-  if(UMI)
-    save(dropoutNum, transcriptNum, whether_impute_iz, whether_impute_inz, file = paste0(tempFileDir, "IntermediateVariables.Rdata"))
+  saveRDS(whether_impute_iz, file = paste0(tempFileDir, "whether_impute_iz.rds"))
+  saveRDS(whether_impute_inz, file = paste0(tempFileDir, "whether_impute_inz.rds"))
 
   # Imputation with whether_impute to results of scImpute, SAVER and MAGIC
   counts_scImpute_inz <- as.matrix(counts_scImpute * whether_impute_inz)
@@ -285,7 +287,6 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     counts_SAVER_inz <- as.matrix(counts_SAVER * whether_impute_inz)
   if(MAGIC == TRUE)
     counts_MAGIC_inz <- as.matrix(counts_MAGIC * whether_impute_inz)
-
 
   if(UMI){
     transcriptNum_all <- colSums(counts)
@@ -305,7 +306,6 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     write.csv(counts_MAGIC_inz, file = paste0(outputDir, "MAGIC_filter.csv"))
 
 }
-
 
 
 
