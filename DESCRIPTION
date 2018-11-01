@@ -1,8 +1,8 @@
 Package: ImputeSingle
 Type: Package
 Title: Imputation for single-cell RNA-seq data
-Version: 0.1.3
-Date: 2018-10-09
+Version: 0.1.4
+Date: 2018-11-01
 Author: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
 Maintainer: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
 Description: Imputation for single-cell RNA-seq data.
@@ -22,7 +22,7 @@ Imports:
     gamlss (>= 4.4-0),
     preseqR (>= 4.0.0),
     scImpute (>= 0.0.9),
-    SAVER (>= 1.1.0),
+    SAVER (>= 1.1.1),
     Rmagic (>= 1.3.0),
     BiocParallel (>= 1.12.0)
 Suggests:
@@ -30,8 +30,7 @@ Suggests:
     rmarkdown,
     SingleCellExperiment
 Remotes:
-    Vivianstats/scImpute,
-    mohuangx/SAVER
+    Vivianstats/scImpute
 VignetteBuilder: knitr
 URL: https://github.com/miaozhun/ImputeSingle
 biocViews: GeneExpression, SingleCell, RNASeq, Transcriptomics, Sequencing, Preprocessing, Software
