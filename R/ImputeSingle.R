@@ -48,7 +48,7 @@
 
 
 
-ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, parallel = FALSE, BPPARAM = bpparam()){
+ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, parallel = TRUE, BPPARAM = bpparam()){
 
   # Handle SingleCellExperiment
   if(class(counts)[1] == "SingleCellExperiment"){
@@ -82,8 +82,8 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   }
 
   if(!is.null(labels)){
-    if(!is.numeric(labels) & !is.character(labels))
-      stop("'labels' must be numeric or character")
+    if(!is.numeric(labels) & !is.integer(labels) & !is.character(labels))
+      stop("'labels' must be numeric or integer or character")
     if(ncol(counts) != length(labels))
       stop("Length of 'labels' must equal to column number of 'counts'")
     if(min(table(labels)) < 2)
@@ -104,8 +104,8 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
       stop("'hist_raw_counts' and 'hist_RUG_counts' must have length equal to column number of 'counts'")
   }
 
-  if(!is.numeric(depth))
-    stop("Data type of 'depth' is not numeric")
+  if(!is.numeric(depth) & !is.integer(depth))
+    stop("Data type of 'depth' is not numeric or integer")
   if(length(depth) != 1)
     stop("Length of 'depth' is not one")
 
@@ -126,7 +126,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
 
   # File path
   if(is.null(outputDir))
-    outputDir <- paste0("./outputFile_ImputeSingle_", gsub(" ", "-", gsub(":", "-", Sys.time())), "/")
+    outputDir <- paste0("./outDir_ImputeSingle_", gsub(" ", "-", gsub(":", "-", Sys.time())), "/")
   tempFileDir <- paste0(outputDir, "tempFile/")
   dir.create(outputDir, showWarnings = FALSE)
   dir.create(tempFileDir, showWarnings = FALSE)
@@ -144,7 +144,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     drop_thre = 0.5,              # threshold set on dropout probability
     Kcluster = Kcluster,          # 2 cell subpopulations
     labels = labels,              # Each cell type should have at least two cells for imputation
-    ncores = 1)                   # number of cores used in parallel computation
+    ncores = if(parallel & .Platform$OS.type != "windows") detectCores() - 2 else 1)    # number of cores used
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
