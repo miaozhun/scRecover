@@ -145,7 +145,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     Kcluster = Kcluster,          # 2 cell subpopulations
     labels = labels,              # Each cell type should have at least two cells for imputation
     ncores = if(parallel & .Platform$OS.type != "windows") detectCores() - 2 else 1)    # number of cores used
-  counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
+  counts_scImpute <- read.csv(file = paste0(tempFileDir, "scImpute.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
   # Run SAVER
@@ -153,7 +153,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     print("========================== Running SAVER ==========================")
     counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)
     counts_SAVER <- counts_SAVER$estimate
-    write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
+    write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER.csv"))
     print("========================== SAVER finished =========================")
   }
 
@@ -161,7 +161,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   if(MAGIC == TRUE){
     print("========================== Running MAGIC ==========================")
     counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
-    write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
+    write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC.csv"))
     print("========================== MAGIC finished =========================")
   }
 
@@ -280,44 +280,29 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     save(dropoutNum, transcriptNum, whether_impute_iz, whether_impute_inz, file = paste0(tempFileDir, "IntermediateVariables.Rdata"))
 
   # Imputation with whether_impute to results of scImpute, SAVER and MAGIC
-  counts_scImpute_iz <- as.matrix(counts + counts_scImpute * whether_impute_iz)
   counts_scImpute_inz <- as.matrix(counts_scImpute * whether_impute_inz)
-  if(SAVER == TRUE){
-    counts_SAVER_iz <- as.matrix(counts + counts_SAVER * whether_impute_iz)
+  if(SAVER == TRUE)
     counts_SAVER_inz <- as.matrix(counts_SAVER * whether_impute_inz)
-  }
-  if(MAGIC == TRUE){
-    counts_MAGIC_iz <- as.matrix(counts + counts_MAGIC * whether_impute_iz)
+  if(MAGIC == TRUE)
     counts_MAGIC_inz <- as.matrix(counts_MAGIC * whether_impute_inz)
-  }
+
 
   if(UMI){
     transcriptNum_all <- colSums(counts)
     transcriptNum_all[names(transcriptNum)] <- transcriptNum
-    counts_scImpute_iz <- counts_scImpute_iz %*% diag(transcriptNum_all/colSums(counts_scImpute_iz))
     counts_scImpute_inz <- counts_scImpute_inz %*% diag(transcriptNum_all/colSums(counts_scImpute_inz))
-    if(SAVER == TRUE){
-      counts_SAVER_iz <- counts_SAVER_iz %*% diag(transcriptNum_all/colSums(counts_SAVER_iz))
+    if(SAVER == TRUE)
       counts_SAVER_inz <- counts_SAVER_inz %*% diag(transcriptNum_all/colSums(counts_SAVER_inz))
-    }
-    if(MAGIC == TRUE){
-      counts_MAGIC_iz <- counts_MAGIC_iz %*% diag(transcriptNum_all/colSums(counts_MAGIC_iz))
+    if(MAGIC == TRUE)
       counts_MAGIC_inz <- counts_MAGIC_inz %*% diag(transcriptNum_all/colSums(counts_MAGIC_inz))
-    }
   }
 
   # Output files
-  write.csv(counts_scImpute_iz, file = paste0(outputDir, "counts_scImpute_iz.csv"))
-  write.csv(counts_scImpute_inz, file = paste0(outputDir, "counts_scImpute_inz.csv"))
-  if(SAVER == TRUE){
-    write.csv(counts_SAVER_iz, file = paste0(outputDir, "counts_SAVER_iz.csv"))
-    write.csv(counts_SAVER_inz, file = paste0(outputDir, "counts_SAVER_inz.csv"))
-  }
-  if(MAGIC == TRUE){
-    write.csv(counts_MAGIC_iz, file = paste0(outputDir, "counts_MAGIC_iz.csv"))
-    write.csv(counts_MAGIC_inz, file = paste0(outputDir, "counts_MAGIC_inz.csv"))
-  }
-
+  write.csv(counts_scImpute_inz, file = paste0(outputDir, "scImpute_filter.csv"))
+  if(SAVER == TRUE)
+    write.csv(counts_SAVER_inz, file = paste0(outputDir, "SAVER_filter.csv"))
+  if(MAGIC == TRUE)
+    write.csv(counts_MAGIC_inz, file = paste0(outputDir, "MAGIC_filter.csv"))
 
 }
 
