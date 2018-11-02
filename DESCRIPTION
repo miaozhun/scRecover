@@ -22,7 +22,7 @@ Imports:
     gamlss (>= 4.4-0),
     preseqR (>= 4.0.0),
     scImpute (>= 0.0.9),
-    SAVER (>= 1.1.0),
+    SAVER (>= 1.1.1),
     Rmagic (>= 1.3.0),
     BiocParallel (>= 1.12.0)
 Suggests:
