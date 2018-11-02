@@ -145,6 +145,10 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
     Kcluster = Kcluster,          # 2 cell subpopulations
     labels = labels,              # Each cell type should have at least two cells for imputation
     ncores = if(parallel & .Platform$OS.type != "windows") detectCores() - 2 else 1)    # number of cores used
+  if(parallel & .Platform$OS.type != "windows"){
+    env <- foreach:::.foreachGlobals
+    rm(list=ls(name=env), pos=env)
+  }
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
