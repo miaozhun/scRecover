@@ -5,14 +5,14 @@
 #' @param counts A non-negative integer matrix of scRNA-seq raw read counts or a \code{SingleCellExperiment} object which contains the read counts matrix. The rows of the matrix are genes and columns are samples/cells.
 #' @param Kcluster An integer specifying the number of cell subpopulations. This parameter can be determined based on prior knowledge or clustering of raw data. \code{Kcluster} is used to determine the candidate neighbors of each cell.
 #' @param labels A character/integer vector specifying the cell type of each column in the raw count matrix. Only needed when \code{Kcluster = NULL}. Each cell type should have at least two cells for imputation.
-#' @param UMI Whether \code{counts} is UMI counts, default is FALSE. If TRUE, \code{hist_raw_counts} and \code{hist_RUG_counts} must be specified.
-#' @param hist_raw_counts A list contains the hist raw counts of each cell in \code{counts}.
-#' @param hist_RUG_counts A list contains the hist RUG counts of each cell in \code{counts}.
-#' @param outputDir The output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.
-#' @param depth Relative sequencing depth comparing with the initial sample, default is 20.
-#' @param SAVER Whether use SAVER, default is FALSE.
-#' @param MAGIC Whether use MAGIC, default is FALSE.
-#' @param parallel If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.
+#' @param outputDir The path of the output directory. If not specified, a folder named with prefix 'outputFile_ImputeSingle_' under the current working directory will be used.
+#' @param depth Relative sequencing depth to be predicted compared with initial sample depth, should between 2-100, default is 20.
+#' @param SAVER Whether use and improve SAVER in imputation, default is FALSE.
+#' @param MAGIC Whether use and improve MAGIC in imputation, default is FALSE.
+#' @param UMI Whether use full UMI data, default is FALSE. If TRUE, \code{hist_raw_counts} and \code{hist_RUG_counts} should be specified.
+#' @param hist_raw_counts A list contains the histogram table of raw read counts for each cell in \code{counts}.
+#' @param hist_RUG_counts A list contains the histogram table of raw UMI-gene counts for each cell in \code{counts}.
+#' @param parallel If FALSE, no parallel computation is used; if TRUE (default), parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.
 #' @param BPPARAM An optional parameter object passed internally to \code{\link{bplapply}} when \code{parallel=TRUE}. If not specified, \code{\link{bpparam}()} (default) will be used.
 #' @return
 #' Imputed counts matrices will be saved in the output directory.
@@ -26,10 +26,10 @@
 #' data(TestImputeSingleData)
 #'
 #' # Run ImputeSingle with Kcluster specified
-#' ImputeSingle(counts = counts, Kcluster = 2, parallel = TRUE)
+#' ImputeSingle(counts = counts, Kcluster = 2)
 #'
 #' # Run ImputeSingle with labels specified
-#' ImputeSingle(counts = counts, labels = labels, parallel = TRUE)
+#' ImputeSingle(counts = counts, labels = labels)
 #'
 #' @import stats
 #' @importFrom utils read.csv write.csv
@@ -48,7 +48,7 @@
 
 
 
-ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, parallel = TRUE, BPPARAM = bpparam()){
+ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = TRUE, BPPARAM = bpparam()){
 
   # Handle SingleCellExperiment
   if(class(counts)[1] == "SingleCellExperiment"){
@@ -61,13 +61,13 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   if(!is.matrix(counts) & !is.data.frame(counts) & class(counts)[1] != "dgCMatrix")
     stop("Wrong data type of 'counts'")
   if(sum(is.na(counts)) > 0)
-    stop("NA detected in 'counts'")
+    stop("NA detected in 'counts'");gc();
   if(sum(counts < 0) > 0)
-    stop("Negative value detected in 'counts'")
+    stop("Negative value detected in 'counts'");gc();
   if(all(counts == 0))
-    stop("All elements of 'counts' are zero")
+    stop("All elements of 'counts' are zero");gc();
   if(any(colSums(counts) == 0))
-    warning("Library size of zero detected in 'counts'")
+    warning("Library size of zero detected in 'counts'");gc();
 
   if(is.null(Kcluster) & is.null(labels))
     stop("One of 'Kcluster' and 'labels' must be specified")
@@ -90,20 +90,6 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
       stop("Too few cells (< 2) in a cluster of 'labels'")
   }
 
-  if(!is.logical(UMI))
-    stop("Data type of 'UMI' is not logical")
-  if(length(UMI) != 1)
-    stop("Length of 'UMI' is not one")
-
-  if(UMI == TRUE){
-    if(is.null(hist_raw_counts) | is.null(hist_RUG_counts))
-      stop("'hist_raw_counts' and 'hist_RUG_counts' must be specified if UMI == TRUE")
-    if(!is.list(hist_raw_counts) | !is.list(hist_RUG_counts))
-      stop("'hist_raw_counts' and 'hist_RUG_counts' must be lists")
-    if(length(hist_raw_counts) != ncol(counts) | length(hist_RUG_counts) != ncol(counts))
-      stop("'hist_raw_counts' and 'hist_RUG_counts' must have length equal to column number of 'counts'")
-  }
-
   if(!is.numeric(depth) & !is.integer(depth))
     stop("Data type of 'depth' is not numeric or integer")
   if(length(depth) != 1)
@@ -119,19 +105,51 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   if(length(MAGIC) != 1)
     stop("Length of 'MAGIC' is not one")
 
+  if(!is.logical(UMI))
+    stop("Data type of 'UMI' is not logical")
+  if(length(UMI) != 1)
+    stop("Length of 'UMI' is not one")
+
+  if(UMI == TRUE){
+    if(is.null(hist_raw_counts) | is.null(hist_RUG_counts))
+      stop("'hist_raw_counts' and 'hist_RUG_counts' must be specified if UMI == TRUE")
+    if(!is.list(hist_raw_counts) | !is.list(hist_RUG_counts))
+      stop("'hist_raw_counts' and 'hist_RUG_counts' must be lists")
+    if(length(hist_raw_counts) != ncol(counts) | length(hist_RUG_counts) != ncol(counts))
+      stop("'hist_raw_counts' and 'hist_RUG_counts' must have length equal to column number of 'counts'")
+  }
+
   if(!is.logical(parallel))
     stop("Data type of 'parallel' is not logical")
   if(length(parallel) != 1)
     stop("Length of 'parallel' is not one")
 
-  # File path
+  # Preprocessing
   if(is.null(outputDir))
     outputDir <- paste0("./outDir_ImputeSingle_", gsub(" ", "-", gsub(":", "-", Sys.time())), "/")
   tempFileDir <- paste0(outputDir, "tempFile/")
   dir.create(outputDir, showWarnings = FALSE)
   dir.create(tempFileDir, showWarnings = FALSE)
+  counts <- as.matrix(counts)
   write.csv(counts, file = paste0(outputDir, "raw_data.csv"))
   count_path <- paste0(outputDir, "raw_data.csv")
+
+  # Run SAVER
+  if(SAVER == TRUE){
+    print("========================== Running SAVER ==========================")
+    counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)
+    counts_SAVER <- counts_SAVER$estimate
+    write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
+    print("========================== SAVER finished =========================")
+  }
+
+  # Run MAGIC
+  if(MAGIC == TRUE){
+    print("========================== Running MAGIC ==========================")
+    counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
+    write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
+    print("========================== MAGIC finished =========================")
+  }
 
   # Run scImpute
   print("========================= Running scImpute =========================")
@@ -151,23 +169,6 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, UMI = FALSE, hi
   }
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
-
-  # Run SAVER
-  if(SAVER == TRUE){
-    print("========================== Running SAVER ==========================")
-    counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)
-    counts_SAVER <- counts_SAVER$estimate
-    write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
-    print("========================== SAVER finished =========================")
-  }
-
-  # Run MAGIC
-  if(MAGIC == TRUE){
-    print("========================== Running MAGIC ==========================")
-    counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
-    write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
-    print("========================== MAGIC finished =========================")
-  }
 
   # Get cluster information
   if(is.null(labels))
