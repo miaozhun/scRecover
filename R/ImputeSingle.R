@@ -195,6 +195,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
         dropoutNum <- c(dropoutNum, estDropoutNum(sample = counts_used[,i], histCounts = NULL, depth = depth, return = "dropoutNum"))
       }
       names(dropoutNum) <- colnames(counts_used)
+      message("\r")
     }else{
       message("ImputeSingle is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells")
       dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), histCounts = NULL, depth = depth, return = "dropoutNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
@@ -211,12 +212,14 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
         dropoutNum <- c(dropoutNum, estDropoutNum(sample = NULL, histCounts = hist_raw_counts[[i]], depth = depth, return = "dropoutNum"))
       }
       names(dropoutNum) <- colnames(counts_used)
+      message("\r")
 
       for(i in 1:ncol(counts_used)){
         cat("\r",paste0("ImputeSingle is estimating transcript number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
         transcriptNum <- c(transcriptNum, estDropoutNum(sample = NULL, histCounts = hist_RUG_counts[[i]], depth = depth, return = "transcriptNum"))
       }
       names(transcriptNum) <- colnames(counts_used)
+      message("\r")
     }else{
       message("ImputeSingle is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells (UMI)")
       dropoutNum <- do.call(c, bplapply(hist_raw_counts, sample = NULL, depth = depth, return = "dropoutNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
@@ -235,7 +238,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
   P_dropout_cc_list <- list()
   P_dropout_mat <- NULL
   for(cc in 1:nclust){
-    message("\rProcessing ", cc, " of ", nclust, " cell clusters")
+    message("Processing ", cc, " of ", nclust, " cell clusters")
     cells <- names(clust[clust %in% unique(clust[!is.na(clust)])[cc]])
     counts_norm_cc <- counts_norm[, cells, drop = FALSE]
 
