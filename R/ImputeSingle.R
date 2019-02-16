@@ -136,23 +136,23 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
 
   # Run SAVER
   if(SAVER == TRUE){
-    cat("========================== Running SAVER ==========================")
+    print("========================== Running SAVER ==========================")
     counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)
     counts_SAVER <- counts_SAVER$estimate
     write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
-    cat("========================== SAVER finished =========================")
+    print("========================== SAVER finished =========================")
   }
 
   # Run MAGIC
   if(MAGIC == TRUE){
-    cat("========================== Running MAGIC ==========================")
+    print("========================== Running MAGIC ==========================")
     counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
-    cat("========================== MAGIC finished =========================")
+    print("========================== MAGIC finished =========================")
   }
 
   # Run scImpute
-  cat("========================= Running scImpute =========================")
+  print("========================= Running scImpute =========================")
   scimpute(
     count_path = count_path,      # full path to raw count matrix
     infile = "csv",               # format of input file
@@ -168,7 +168,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
     rm(list=ls(name=env), pos=env)
   }
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
-  cat("========================= scImpute finished ========================")
+  print("========================= scImpute finished ========================")
 
   # Get cluster information
   if(is.null(labels))
@@ -244,7 +244,6 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
     if(!parallel){
       for(i in 1:nrow(counts_norm_cc)){
         cat("\r",paste0("ImputeSingle is analyzing ", i, " of ", nrow(counts_norm), " genes in cluster ", cc))
-        message("\r")
         ZINB_parameters <- rbind(ZINB_parameters, mleZINB(counts_norm_cc[i,]))
       }
       row.names(ZINB_parameters) <- row.names(counts_norm_cc)
