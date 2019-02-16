@@ -244,6 +244,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
     if(!parallel){
       for(i in 1:nrow(counts_norm_cc)){
         cat("\r",paste0("ImputeSingle is analyzing ", i, " of ", nrow(counts_norm), " genes in cluster ", cc))
+        message("\r")
         ZINB_parameters <- rbind(ZINB_parameters, mleZINB(counts_norm_cc[i,]))
       }
       row.names(ZINB_parameters) <- row.names(counts_norm_cc)
