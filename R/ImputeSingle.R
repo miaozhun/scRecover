@@ -136,23 +136,23 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
 
   # Run SAVER
   if(SAVER == TRUE){
-    print("========================== Running SAVER ==========================")
+    cat("========================== Running SAVER ==========================")
     counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)
     counts_SAVER <- counts_SAVER$estimate
     write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
-    print("========================== SAVER finished =========================")
+    cat("========================== SAVER finished =========================")
   }
 
   # Run MAGIC
   if(MAGIC == TRUE){
-    print("========================== Running MAGIC ==========================")
+    cat("========================== Running MAGIC ==========================")
     counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
-    print("========================== MAGIC finished =========================")
+    cat("========================== MAGIC finished =========================")
   }
 
   # Run scImpute
-  print("========================= Running scImpute =========================")
+  cat("========================= Running scImpute =========================")
   scimpute(
     count_path = count_path,      # full path to raw count matrix
     infile = "csv",               # format of input file
@@ -168,7 +168,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
     rm(list=ls(name=env), pos=env)
   }
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
-  print("========================= scImpute finished ========================")
+  cat("========================= scImpute finished ========================")
 
   # Get cluster information
   if(is.null(labels))
@@ -235,7 +235,7 @@ ImputeSingle <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NUL
   P_dropout_cc_list <- list()
   P_dropout_mat <- NULL
   for(cc in 1:nclust){
-    message("Processing ", cc, " of ", nclust, " cell clusters")
+    message("\rProcessing ", cc, " of ", nclust, " cell clusters")
     cells <- names(clust[clust %in% unique(clust[!is.na(clust)])[cc]])
     counts_norm_cc <- counts_norm[, cells, drop = FALSE]
 
