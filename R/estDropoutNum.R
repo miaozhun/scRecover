@@ -13,10 +13,12 @@
 #' @seealso
 #' \code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
 #'
+#' \code{\link{normalization}}, for normalization of single-cell RNA-seq data.
+#'
 #' \code{\link{scRecoverTest}}, a test dataset for scRecover.
 #'
 #' @examples
-#' # Load test data for scRecover
+#' # Load test data
 #' data(scRecoverTest)
 #'
 #' # Estimate dropout gene number in a cell
