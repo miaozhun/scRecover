@@ -23,7 +23,7 @@ The dropout gene number (or all expressed gene number) predicted in a cell.
 This function is used to estimate dropout gene number in a cell for single-cell RNA-seq (scRNA-seq) data. It takes a non-negative vector of scRNA-seq raw read counts of a cell as input.
 }
 \examples{
-# Load test data for scRecover
+# Load test data
 data(scRecoverTest)
 
 # Estimate dropout gene number in a cell
@@ -36,6 +36,8 @@ estDropoutNum(sample = counts[,1], return = "geneNumPredict")
 }
 \seealso{
 \code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
+
+\code{\link{normalization}}, for normalization of single-cell RNA-seq data.
 
 \code{\link{scRecoverTest}}, a test dataset for scRecover.
 }
