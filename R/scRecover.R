@@ -5,7 +5,7 @@
 #' @param counts A non-negative integer matrix of scRNA-seq raw read counts or a \code{SingleCellExperiment} object which contains the read counts matrix. The rows of the matrix are genes and columns are samples/cells.
 #' @param Kcluster An integer specifying the number of cell subpopulations. This parameter can be determined based on prior knowledge or clustering of raw data. \code{Kcluster} is used to determine the candidate neighbors of each cell.
 #' @param labels Optional. Only needed when \code{Kcluster} is blank or \code{Kcluster = NULL}. A character/integer vector specifying the cell type of each column in the raw count matrix. Each cell type should have at least two cells.
-#' @param outputDir The path of the output directory. If not specified, a folder named with prefix 'outputFile_scRecover_' under the current working directory will be used.
+#' @param outputDir The path of the output directory. If not specified, a folder named with prefix 'outDir_scRecover_' under the current working directory will be used.
 #' @param depth Relative sequencing depth to be predicted compared with initial sample depth, should between 2-100, default is 20.
 #' @param SAVER Whether use and improve SAVER in imputation, default is FALSE.
 #' @param MAGIC Whether use and improve MAGIC in imputation, default is FALSE.
@@ -19,6 +19,8 @@
 #'
 #' @author Zhun Miao.
 #' @seealso
+#' \code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
+#'
 #' \code{\link{scRecoverTest}}, a test dataset for scRecover.
 #'
 #' @examples
@@ -191,13 +193,13 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     if(!parallel){
       for(i in 1:ncol(counts_used)){
         cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells"))
-        dropoutNum <- c(dropoutNum, estDropoutNum(sample = counts_used[,i], histCounts = NULL, depth = depth, return = "dropoutNum"))
+        dropoutNum <- c(dropoutNum, estDropoutNum(sample = counts_used[,i], depth = depth, histCounts = NULL, return = "dropoutNum"))
       }
       names(dropoutNum) <- colnames(counts_used)
       message("\r")
     }else{
       message("scRecover is estimating dropout gene number in ", ncol(counts_used), " non-outlier cells")
-      dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), histCounts = NULL, depth = depth, return = "dropoutNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
+      dropoutNum <- do.call(c, bplapply(as.data.frame(counts_used), depth = depth, histCounts = NULL, return = "dropoutNum", FUN = estDropoutNum, BPPARAM = BPPARAM))
     }
   }
 
@@ -208,14 +210,14 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     if(!parallel){
       for(i in 1:ncol(counts_used)){
         cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
-        dropoutNum <- c(dropoutNum, estDropoutNum(sample = NULL, histCounts = hist_raw_counts[[i]], depth = depth, return = "dropoutNum"))
+        dropoutNum <- c(dropoutNum, estDropoutNum(sample = NULL, depth = depth, histCounts = hist_raw_counts[[i]], return = "dropoutNum"))
       }
       names(dropoutNum) <- colnames(counts_used)
       message("\r")
 
       for(i in 1:ncol(counts_used)){
         cat("\r",paste0("scRecover is estimating transcript number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
-        transcriptNum <- c(transcriptNum, estDropoutNum(sample = NULL, histCounts = hist_RUG_counts[[i]], depth = depth, return = "transcriptNum"))
+        transcriptNum <- c(transcriptNum, estDropoutNum(sample = NULL, depth = depth, histCounts = hist_RUG_counts[[i]], return = "transcriptNum"))
       }
       names(transcriptNum) <- colnames(counts_used)
       message("\r")
