@@ -40,5 +40,7 @@ scRecover(counts = counts, labels = labels)
 \code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
 
 \code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
+
+\code{\link{normalization}}, for normalization of single-cell RNA-seq data.
 }
 \keyword{data}
