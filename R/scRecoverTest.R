@@ -21,6 +21,8 @@
 #' @seealso
 #' \code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
 #'
+#' \code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
+#'
 #' @examples
 #' # Load test data for scRecover
 #' data(scRecoverTest)
