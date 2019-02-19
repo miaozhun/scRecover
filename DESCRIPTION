@@ -1,8 +1,8 @@
-Package: ImputeSingle
+Package: scRecover
 Type: Package
 Title: Imputation for single-cell RNA-seq data
 Version: 0.1.5
-Date: 2018-11-01
+Date: 2018-05-30
 Author: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
 Maintainer: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
 Description: Imputation for single-cell RNA-seq data.
@@ -32,6 +32,6 @@ Suggests:
 Remotes:
     Vivianstats/scImpute
 VignetteBuilder: knitr
-URL: https://github.com/miaozhun/ImputeSingle
+URL: https://github.com/miaozhun/scRecover
 biocViews: GeneExpression, SingleCell, RNASeq, Transcriptomics, Sequencing, Preprocessing, Software
 RoxygenNote: 6.0.1
