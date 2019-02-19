@@ -21,6 +21,8 @@
 #' @seealso
 #' \code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
 #'
+#' \code{\link{normalization}}, for normalization of single-cell RNA-seq data.
+#'
 #' \code{\link{scRecoverTest}}, a test dataset for scRecover.
 #'
 #' @examples
