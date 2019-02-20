@@ -23,6 +23,9 @@ To install the *developmental version* from [**GitHub**](https://github.com/miao
 ```{r Installation from GitHub, eval = FALSE}
 devtools::install_github("miaozhun/scRecover", build_vignettes = TRUE)
 ```
+<br><br>
+<br><br>
+<br><br>
 
 To load the installed **`scRecover`** in R:
 
