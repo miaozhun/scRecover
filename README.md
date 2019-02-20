@@ -25,13 +25,13 @@ If you use **`scRecover`** in published research, please cite:
 
 To install the *developmental version* from [**GitHub**](https://github.com/miaozhun/scRecover/):
 
-```{r Installation from GitHub, eval = FALSE}
+```R
 devtools::install_github("miaozhun/scRecover", build_vignettes = TRUE)
 ```
 
 To load the installed **`scRecover`** in R:
 
-```{r Load scRecover, eval = FALSE}
+```R
 library(scRecover)
 ```
 
@@ -51,21 +51,21 @@ The input `counts` is a scRNA-seq **read counts matrix** or a **`SingleCellExper
 
 Users can load the test data in **`scRecover`** by
 
-```{r Load scRecoverTest}
+```R
 library(scRecover)
 data(scRecoverTest)
 ```
 
 The test data `counts` in `scRecoverTest` is a scRNA-seq read counts matrix which has 200 genes (rows) and 150 cells (columns).
 
-```{r counts}
+```R
 dim(counts)
 counts[1:6, 1:6]
 ```
 
 The object `labels` in `scRecoverTest` is a vector of integer specifying the cell types in the read counts matrix, corresponding to the columns of `counts`.
 
-```{r labels}
+```R
 length(labels)
 table(labels)
 ```
@@ -77,7 +77,7 @@ table(labels)
 
 Here is an example to run **`scRecover`** with read counts matrix input:
 
-```{r demo1, eval = FALSE}
+```R
 # Load test data for scRecover
 library(scRecover)
 data(scRecoverTest)
@@ -95,7 +95,7 @@ The [`SingleCellExperiment`](http://bioconductor.org/packages/SingleCellExperime
 
 Here is an example to run **`scRecover`** with `SingleCellExperiment` input:
 
-```{r demo2, eval = FALSE}
+```R
 # Load library and the test data for scRecover
 library(scRecover)
 library(SingleCellExperiment)
@@ -121,7 +121,7 @@ Imputed expression matrices will be saved in the output directory specified by \
 
 **`scRecover`** integrates parallel computing function with [`BiocParallel`](http://bioconductor.org/packages/BiocParallel/) package. Users could just set `parallel = TRUE` (default) in function `scRecover` to enable parallelization and leave the `BPPARAM` parameter alone.
 
-```{r demo3, eval = FALSE}
+```R
 # Load library
 library(scRecover)
 
@@ -138,7 +138,7 @@ Advanced users could use a `BiocParallelParam` object from package `BiocParallel
 
 The best choice for Unix and Mac users is to use `MulticoreParam` to configure a multicore parallel back-end:
 
-```{r demo4, eval = FALSE}
+```R
 # Load library
 library(scRecover)
 library(BiocParallel)
@@ -158,7 +158,7 @@ scRecover(counts = counts, labels = labels, parallel = TRUE, BPPARAM = param)
 
 For Windows users, use `SnowParam` to configure a Snow back-end is a good choice:
 
-```{r demo5, eval = FALSE}
+```R
 # Load library
 library(scRecover)
 library(BiocParallel)
@@ -276,22 +276,22 @@ Use `browseVignettes("scRecover")` to see the vignettes of **`scRecover`** in R 
 
 Use the following code in R to get access to the help documentation for **`scRecover`**:
 
-```{r help1, eval = FALSE}
+```R
 # Documentation for scRecover
 ?scRecover
 ```
 
-```{r help2, eval = FALSE}
+```R
 # Documentation for estDropoutNum
 ?estDropoutNum
 ```
 
-```{r help3, eval = FALSE}
+```R
 # Documentation for normalization
 ?normalization
 ```
 
-```{r help4, eval = FALSE}
+```R
 # Documentation for test data
 ?scRecoverTest
 ?counts
