@@ -187,15 +187,15 @@ We evaluated SAVER, scImpute, MAGIC and their combined with scRecover version SA
 
 We found after combined with scRecover, scImpute+scRecover, SAVER+scRecover and MAGIC+scRecover will have higher accuracy than scImpute, SAVER and MAGIC respectively.
 
-![](Accuracy_legend.png)
-![](Accuracy.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Accuracy_legend.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Accuracy.png)
 
 ### 9.1.2 Predicted dropout number
 
 We found scImpute+scRecover, SAVER+scRecover and MAGIC+scRecover will have predicted dropout numbers closer to the real dropout number than without combination with scRecover.
 
-![](Dropout_legend.png)
-![](Dropout.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Dropout_legend.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Dropout.png)
 
 ## 9.2 On 10X data
 
@@ -207,31 +207,31 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 
 <center>
 #### Raw data
-![](10x_t-SNE_raw_data.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_raw_data.png)
 <br><br>
 
 #### SAVER
-![](10x_t-SNE_SAVER.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_SAVER.png)
 <br><br>
 
 #### SAVER + scRecover
-![](10x_t-SNE_SAVER+scRecover.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_SAVER+scRecover.png)
 <br><br>
 
 #### scImpute
-![](10x_t-SNE_scImpute.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_scImpute.png)
 <br><br>
 
 #### scImpute + scRecover
-![](10x_t-SNE_scImpute+scRecover.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_scImpute+scRecover.png)
 <br><br>
 
 #### MAGIC
-![](10x_t-SNE_MAGIC.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_MAGIC.png)
 <br><br>
 
 #### MAGIC + scRecover
-![](10x_t-SNE_MAGIC+scRecover.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_MAGIC+scRecover.png)
 
 ## 9.3 On SMART-seq data
 
@@ -243,31 +243,31 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 
 <center>
 #### Raw data
-![](SMART-seq_t-SNE_raw_data.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_raw_data.png)
 <br><br>
 
 #### SAVER
-![](SMART-seq_t-SNE_SAVER.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_SAVER.png)
 <br><br>
 
 #### SAVER + scRecover
-![](SMART-seq_t-SNE_SAVER+scRecover.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_SAVER+scRecover.png)
 <br><br>
 
 #### scImpute
-![](SMART-seq_t-SNE_scImpute.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_scImpute.png)
 <br><br>
 
 #### scImpute + scRecover
-![](SMART-seq_t-SNE_scImpute+scRecover.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_scImpute+scRecover.png)
 <br><br>
 
 #### MAGIC
-![](SMART-seq_t-SNE_MAGIC.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_MAGIC.png)
 <br><br>
 
 #### MAGIC + scRecover
-![](SMART-seq_t-SNE_MAGIC+scRecover.png)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_MAGIC+scRecover.png)
 
 
 # 10. Help
