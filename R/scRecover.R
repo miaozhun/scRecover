@@ -310,11 +310,11 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   }
 
   # Output files
-  write.csv(counts_scImpute_inz, file = paste0(outputDir, "scImpute_filter.csv"))
+  write.csv(counts_scImpute_inz, file = paste0(outputDir, "scImpute+scRecover.csv"))
   if(SAVER == TRUE)
-    write.csv(counts_SAVER_inz, file = paste0(outputDir, "SAVER_filter.csv"))
+    write.csv(counts_SAVER_inz, file = paste0(outputDir, "SAVER+scRecover.csv"))
   if(MAGIC == TRUE)
-    write.csv(counts_MAGIC_inz, file = paste0(outputDir, "MAGIC_filter.csv"))
+    write.csv(counts_MAGIC_inz, file = paste0(outputDir, "MAGIC+scRecover.csv"))
 
 }
 
