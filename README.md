@@ -205,8 +205,6 @@ Then we measured the downstream clustering and visualization results by comparin
 
 We found a significant improvement of SAVER, scImpute and MAGIC after combined with scRecover.
 
-<center>
-
 #### Raw data
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_raw_data.png?raw=true)
 <br><br>
@@ -234,8 +232,6 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 #### MAGIC + scRecover
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_MAGIC+scRecover.png?raw=true)
 
-</center>
-
 ## 9.3 On SMART-seq data
 
 Next, we applied the 6 imputation methods to a SMART-seq scRNA-seq dataset (Chu L, et al. Genome Biology, 2016, https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE75748).
@@ -243,8 +239,6 @@ Next, we applied the 6 imputation methods to a SMART-seq scRNA-seq dataset (Chu 
 Then we measured the downstream clustering and visualization results by comparing to the cell labels originated from the dataset and deriving their Jaccard indexes.
 
 We found a significant improvement of SAVER, scImpute and MAGIC after combined with scRecover.
-
-<center>
 
 #### Raw data
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_raw_data.png?raw=true)
@@ -272,8 +266,6 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 
 #### MAGIC + scRecover
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_MAGIC+scRecover.png?raw=true)
-
-</center>
 
 
 # 10. Help
