@@ -234,6 +234,8 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 #### MAGIC + scRecover
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_MAGIC+scRecover.png?raw=true)
 
+</center>
+
 ## 9.3 On SMART-seq data
 
 Next, we applied the 6 imputation methods to a SMART-seq scRNA-seq dataset (Chu L, et al. Genome Biology, 2016, https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE75748).
@@ -270,6 +272,8 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 
 #### MAGIC + scRecover
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_MAGIC+scRecover.png?raw=true)
+
+</center>
 
 
 # 10. Help
