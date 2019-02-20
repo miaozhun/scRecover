@@ -4,7 +4,7 @@
 
 *2018-05-30*
 
-![](scRecover_LOGO.png)
+![logo](https://github.com/miaozhun/scRecover/blob/master/vignettes/scRecover_LOGO.png?raw=true)
 
 
 # 1. Introduction
