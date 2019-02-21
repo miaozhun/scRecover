@@ -19,7 +19,9 @@
 #'
 #' @author Zhun Miao.
 #' @seealso
-#' \code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
+#' \code{\link{estDropoutNum}}, for estimating dropout gene number in a cell.
+#'
+#' \code{\link{countsSampling}}, for downsampling the read counts in a cell.
 #'
 #' \code{\link{normalization}}, for normalization of single-cell RNA-seq data.
 #'
@@ -35,7 +37,9 @@
 #' # Run scRecover with labels specified
 #' scRecover(counts = counts, labels = labels)
 #'
+#'
 #' @import stats
+#' @importFrom graphics hist
 #' @importFrom utils read.csv write.csv
 #' @importFrom parallel detectCores
 #' @importFrom Matrix Matrix
@@ -56,7 +60,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
 
   # Handle SingleCellExperiment
   if(class(counts)[1] == "SingleCellExperiment"){
-    if(!require(SingleCellExperiment))
+    if(!requireNamespace("SingleCellExperiment"))
       stop("To use SingleCellExperiment as input, you should install the package firstly")
     counts <- counts(counts)
   }
@@ -166,10 +170,10 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     Kcluster = Kcluster,          # 2 cell subpopulations
     labels = labels,              # Each cell type should have at least two cells for imputation
     ncores = if(parallel & .Platform$OS.type != "windows") detectCores() - 2 else 1)    # number of cores used
-  if(parallel & .Platform$OS.type != "windows"){
-    env <- foreach:::.foreachGlobals
-    rm(list=ls(name=env), pos=env)
-  }
+  # if(parallel & .Platform$OS.type != "windows"){
+  #   env <- foreach:::.foreachGlobals
+  #   rm(list=ls(name=env), pos=env)
+  # }
   counts_scImpute <- read.csv(file = paste0(tempFileDir, "scimpute_count.csv"), header = TRUE, row.names = 1)
   print("========================= scImpute finished ========================")
 
