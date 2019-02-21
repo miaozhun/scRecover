@@ -50,9 +50,12 @@ scRecover(counts = counts, Kcluster = 2)
 # Run scRecover with labels specified
 scRecover(counts = counts, labels = labels)
 
+
 }
 \seealso{
-\code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
+\code{\link{estDropoutNum}}, for estimating dropout gene number in a cell.
+
+\code{\link{countsSampling}}, for downsampling the read counts in a cell.
 
 \code{\link{normalization}}, for normalization of single-cell RNA-seq data.
 
