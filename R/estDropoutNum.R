@@ -31,16 +31,20 @@
 #'
 #'
 #' @import stats
+#' @import doParallel
+#' @import foreach
+#' @import parallel
+#' @import penalized
+#' @importFrom kernlab specc
+#' @importFrom rsvd rpca
 #' @importFrom graphics hist
-#' @importFrom utils read.csv write.csv
-#' @importFrom parallel detectCores
+#' @importFrom utils read.csv read.table write.csv write.table
 #' @importFrom Matrix Matrix
 #' @importFrom MASS glm.nb fitdistr
 #' @importFrom pscl zeroinfl
 #' @importFrom bbmle mle2
 #' @importFrom gamlss gamlssML
 #' @importFrom preseqR ztnb.rSAC
-#' @importFrom scImpute scimpute
 #' @importFrom SAVER saver
 #' @importFrom Rmagic magic
 #' @importFrom BiocParallel bpparam bplapply
