@@ -8,9 +8,11 @@
 #'
 #' @author Zhun Miao.
 #' @seealso
-#' \code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
+#' \code{\link{scRecover}}, for imputation of single-cell RNA-seq data.
 #'
-#' \code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
+#' \code{\link{estDropoutNum}}, for estimating dropout gene number in a cell.
+#'
+#' \code{\link{countsSampling}}, for downsampling the read counts in a cell.
 #'
 #' \code{\link{scRecoverTest}}, a test dataset for scRecover.
 #'
@@ -18,10 +20,12 @@
 #' # Load test data
 #' data(scRecoverTest)
 #'
-#' # Run normalization
+#' # Normalization of counts
 #' counts.norm <- normalization(counts = counts)
 #'
+#'
 #' @import stats
+#' @importFrom graphics hist
 #' @importFrom utils read.csv write.csv
 #' @importFrom parallel detectCores
 #' @importFrom Matrix Matrix
@@ -42,7 +46,7 @@
 normalization <- function(counts){
   # Handle SingleCellExperiment
   if(class(counts)[1] == "SingleCellExperiment"){
-    if(!require(SingleCellExperiment))
+    if(!requireNamespace("SingleCellExperiment"))
       stop("To use SingleCellExperiment as input, you should install the package firstly")
     counts <- counts(counts)
   }
