@@ -147,6 +147,7 @@ library(scRecover)
 data(scRecoverTest)
 
 # Downsample 10% read counts in oneCell
+set.seed(999)
 oneCell.down <- countsSampling(counts = oneCell, fraction = 0.1)
 
 # Count the groundtruth dropout gene number in the downsampled cell
