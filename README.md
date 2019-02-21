@@ -11,7 +11,7 @@
 
 **`scRecover`** is an R package for **imputation of single-cell RNA-seq (scRNA-seq) data**. It will detect and impute dropout values in a scRNA-seq raw read counts matrix while **keeping the real zeros unchanged**.
 
-**`scRecover`** employs the Zero-Inflated Negative Binomial (ZINB) model for dropout probability estimation of each gene and accumulation curves for prediction of dropout number in each cell. By combination with scImpute, SAVER and MAGIC, it not only detects dropout/real zeros **at higher accuracy**, but also **improve the downstream clustering and visualization results**.
+Since there are both dropout zeros and real zeros in scRNA-seq data, imputation methods should not impute all the zeros to non-zero values. To distinguish dropout and real zeros, **`scRecover`** employs the Zero-Inflated Negative Binomial (ZINB) model for dropout probability estimation of each gene and accumulation curves for prediction of dropout number in each cell. By combination with scImpute, SAVER and MAGIC, it not only detects dropout and real zeros **at higher accuracy**, but also **improve the downstream clustering and visualization results**.
 
 
 # 2. Citation
@@ -70,10 +70,19 @@ length(labels)
 table(labels)
 ```
 
+The object `oneCell` in `scRecoverTest` is a vector of a cell's raw read counts for each gene.
+
+```R
+head(oneCell)
+length(oneCell)
+```
+
 
 # 6. Usage
 
-## 6.1 With read counts matrix input
+## 6.1 Imputation using scRecover
+
+### 6.1.1 With read counts matrix input
 
 Here is an example to run **`scRecover`** with read counts matrix input:
 
@@ -89,7 +98,7 @@ scRecover(counts = counts, Kcluster = 2, outputDir = "./outDir_scRecover/")
 scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
-## 6.2 With SingleCellExperiment input
+### 6.1.2 With SingleCellExperiment input
 
 The [`SingleCellExperiment`](http://bioconductor.org/packages/SingleCellExperiment/) class is a widely used S4 class for storing single-cell genomics data. **`scRecover`** also could take the `SingleCellExperiment` data representation as input.
 
@@ -111,10 +120,31 @@ scRecover(counts = sce, Kcluster = 2, outputDir = "./outDir_scRecover/")
 scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
+## 6.2 Estimate dropout gene number in a cell
+Function `estDropoutNum` in the package could estimate the dropout gene number or all expressed gene number (namely observed gene number plus dropout gene number) in a cell:
+
+```R
+# Load test data
+library(scRecover)
+data(scRecoverTest)
+
+# Downsample 10% read counts in oneCell
+oneCell.down <- countsSampling(counts = oneCell, fraction = 0.1)
+
+# Count the groundtruth dropout gene number in the downsampled cell
+sum(oneCell.down == 0 & oneCell != 0)
+
+# Estimate the dropout gene number in the downsampled cell by estDropoutNum
+estDropoutNum(sample = oneCell.down, depth = 10, return = "dropoutNum")
+```
+
+Blow shows the expressed gene number predicted by `estDropoutNum` with 10% downsampled reads and the groundtruth expressed gene number derived by downsampling when the reads depth varying from 0% to 100% of the total reads.
+
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Gene_number_prediction.png?raw=true)
 
 # 7. Output
 
-Imputed expression matrices will be saved in the output directory specified by \code{outputDir} or a folder named with prefix 'outDir_scRecover_' under the current working directory when \code{outputDir} is unspecified.
+Imputed expression matrices of **`scRecover`** will be saved in the output directory specified by \code{outputDir} or a folder named with prefix 'outDir_scRecover_' under the current working directory when \code{outputDir} is unspecified.
 
 
 # 8. Parallelization
@@ -205,6 +235,7 @@ Then we measured the downstream clustering and visualization results by comparin
 
 We found a significant improvement of SAVER, scImpute and MAGIC after combined with scRecover.
 
+<center>
 #### Raw data
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_raw_data.png?raw=true)
 <br><br>
@@ -240,6 +271,7 @@ Then we measured the downstream clustering and visualization results by comparin
 
 We found a significant improvement of SAVER, scImpute and MAGIC after combined with scRecover.
 
+<center>
 #### Raw data
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_raw_data.png?raw=true)
 <br><br>
@@ -285,6 +317,11 @@ Use the following code in R to get access to the help documentation for **`scRec
 ```
 
 ```R
+# Documentation for countsSampling
+?countsSampling
+```
+
+```R
 # Documentation for normalization
 ?normalization
 ```
@@ -294,6 +331,7 @@ Use the following code in R to get access to the help documentation for **`scRec
 ?scRecoverTest
 ?counts
 ?labels
+?oneCell
 ```
 
 You are also welcome to contact the author by email for help.
