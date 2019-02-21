@@ -107,7 +107,7 @@ Here is an example to run **`scRecover`** with `SingleCellExperiment` input:
 ```R
 # Load library and the test data for scRecover
 library(scRecover)
-library(SingleCellExperiment)
+suppressMessages(library(SingleCellExperiment))
 data(scRecoverTest)
 
 # Convert the test data in scRecover to SingleCellExperiment data representation
