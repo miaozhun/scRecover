@@ -3,7 +3,7 @@
 #' This function is used to estimate dropout gene number in a cell for single-cell RNA-seq (scRNA-seq) data. It takes a non-negative vector of scRNA-seq raw read counts of a cell as input.
 #'
 #' @param sample A vector of a cell's raw read counts for each gene.
-#' @param depth Relative sequencing depth to be predicted compared with initial sample depth, should between 2-100, default is 20.
+#' @param depth Relative sequencing depth to be predicted compared with initial sample depth, should between 0-100, default is 20.
 #' @param histCounts Optional. Only needed when \code{sample} is blank or \code{sample = NULL}. A histogram table of raw read counts for the cell.
 #' @param return A character for choosing the return value type of the function. Either be "dropoutNum" (default) for dropout gene number or "geneNumPredict" for all expressed gene number predicted.
 #' @return
@@ -11,7 +11,9 @@
 #'
 #' @author Zhun Miao.
 #' @seealso
-#' \code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
+#' \code{\link{scRecover}}, for imputation of single-cell RNA-seq data.
+#'
+#' \code{\link{countsSampling}}, for downsampling the read counts in a cell.
 #'
 #' \code{\link{normalization}}, for normalization of single-cell RNA-seq data.
 #'
@@ -22,13 +24,14 @@
 #' data(scRecoverTest)
 #'
 #' # Estimate dropout gene number in a cell
-#' estDropoutNum(sample = counts[,1])
+#' estDropoutNum(sample = counts[,1], return = "dropoutNum")
 #'
 #' # Estimate all expressed gene number in a cell
 #' estDropoutNum(sample = counts[,1], return = "geneNumPredict")
 #'
 #'
 #' @import stats
+#' @importFrom graphics hist
 #' @importFrom utils read.csv write.csv
 #' @importFrom parallel detectCores
 #' @importFrom Matrix Matrix
@@ -53,7 +56,7 @@ estDropoutNum <- function(sample = NULL, depth = 20, histCounts = NULL, return =
   if(!is.null(sample) & !is.null(histCounts))
     stop("Only one of 'sample' and 'histCounts' should be specified")
 
-  if(!is.vector(sample) & !is.data.frame(sample) & !is.integer(sample) & !is.numeric(sample) & !is.double(sample))
+  if(!is.vector(sample) & !is.data.frame(sample) & !is.matrix(sample) & class(sample)[1] != "dgCMatrix" & !is.integer(sample) & !is.numeric(sample) & !is.double(sample))
     stop("Wrong data type of 'sample'")
   if(sum(is.na(sample)) > 0)
     stop("NA detected in 'sample'")
@@ -64,8 +67,6 @@ estDropoutNum <- function(sample = NULL, depth = 20, histCounts = NULL, return =
 
   if(!is.numeric(depth) & !is.integer(depth))
     stop("Data type of 'depth' is not numeric or integer")
-  if(length(depth) != 1)
-    stop("Length of 'depth' is not one")
 
   if(!is.character(return))
     stop("Data type of 'return' is not character")
