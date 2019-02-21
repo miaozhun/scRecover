@@ -22,7 +22,12 @@ Imports:
     stats,
     utils,
     graphics,
+    doParallel,
+    foreach,
     parallel,
+    penalized,
+    kernlab,
+    rsvd,
     Matrix (>= 1.2-14),
     MASS (>= 7.3-45),
     pscl (>= 1.4.9),
@@ -37,8 +42,6 @@ Suggests:
     knitr,
     rmarkdown,
     SingleCellExperiment
-Remotes:
-    Vivianstats/scImpute
 VignetteBuilder: knitr
 URL: https://github.com/miaozhun/scRecover
 biocViews: GeneExpression, SingleCell, RNASeq, Transcriptomics, Sequencing, Preprocessing, Software
