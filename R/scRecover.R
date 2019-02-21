@@ -60,7 +60,7 @@
 
 
 
-scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = TRUE, BPPARAM = bpparam()){
+scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = FALSE, BPPARAM = bpparam()){
 
   # Handle SingleCellExperiment
   if(class(counts)[1] == "SingleCellExperiment"){
