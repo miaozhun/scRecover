@@ -1,12 +1,19 @@
 Package: scRecover
 Type: Package
-Title: Imputation for single-cell RNA-seq data
+Title: scRecover for imputation of single-cell RNA-seq data
 Version: 0.1.5
 Date: 2018-05-30
 Author: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
 Maintainer: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
-Description: Imputation for single-cell RNA-seq data.
-    Use four spaces when indenting paragraphs within the Description.
+Description: scRecover is an R package for imputation of single-cell RNA-seq (scRNA-seq) data.
+    It will detect and impute dropout values in a scRNA-seq raw read counts matrix while 
+    keeping the real zeros unchanged. Since there are both dropout zeros and real zeros in 
+    scRNA-seq data, imputation methods should not impute all the zeros to non-zero values.
+    To distinguish dropout and real zeros, scRecover employs the Zero-Inflated Negative 
+    Binomial (ZINB) model for dropout probability estimation of each gene and accumulation 
+    curves for prediction of dropout number in each cell. By combination with scImpute, SAVER 
+    and MAGIC, it not only detects dropout and real zeros at higher accuracy, but also 
+    improve the downstream clustering and visualization results.
 License: GPL
 Encoding: UTF-8
 LazyData: true
@@ -14,6 +21,7 @@ Depends: R (>= 3.4.0)
 Imports:
     stats,
     utils,
+    graphics,
     parallel,
     Matrix (>= 1.2-14),
     MASS (>= 7.3-45),
