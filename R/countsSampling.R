@@ -25,7 +25,6 @@
 #' oneCell.down <- countsSampling(counts = oneCell, fraction = 0.1)
 #'
 #'
-#' @import stats
 #' @import doParallel
 #' @import foreach
 #' @import parallel
@@ -33,6 +32,7 @@
 #' @importFrom kernlab specc
 #' @importFrom rsvd rpca
 #' @importFrom graphics hist
+#' @importFrom stats complete.cases dgamma dnbinom dnorm prcomp quantile rgamma rnorm sd uniroot
 #' @importFrom utils read.csv read.table write.csv write.table
 #' @importFrom Matrix Matrix
 #' @importFrom MASS glm.nb fitdistr
