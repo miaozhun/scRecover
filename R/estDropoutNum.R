@@ -80,7 +80,7 @@ estDropoutNum <- function(sample = NULL, depth = 20, histCounts = NULL, return =
     histCounts <- histCounts[-1,]
     colnames(histCounts) <- c("j", "n_j")
   }
-  preseqR <- ztnb.rSAC(histCounts)
+  suppressWarnings(preseqR <- ztnb.rSAC(histCounts))
   geneNumPredict <- round(preseqR(depth))
   dropoutNum <- geneNumPredict - sum(histCounts[,2])
   if(return == "dropoutNum")
