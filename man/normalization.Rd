@@ -19,14 +19,17 @@ This function is used to normalize single-cell RNA-seq (scRNA-seq) data. It take
 # Load test data
 data(scRecoverTest)
 
-# Run normalization
+# Normalization of counts
 counts.norm <- normalization(counts = counts)
+
 
 }
 \seealso{
-\code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
+\code{\link{scRecover}}, for imputation of single-cell RNA-seq data.
 
-\code{\link{estDropoutNum}}, for estimate dropout gene number in a cell.
+\code{\link{estDropoutNum}}, for estimating dropout gene number in a cell.
+
+\code{\link{countsSampling}}, for downsampling the read counts in a cell.
 
 \code{\link{scRecoverTest}}, a test dataset for scRecover.
 }
