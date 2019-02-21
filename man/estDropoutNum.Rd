@@ -10,7 +10,7 @@ estDropoutNum(sample = NULL, depth = 20, histCounts = NULL,
 \arguments{
 \item{sample}{A vector of a cell's raw read counts for each gene.}
 
-\item{depth}{Relative sequencing depth to be predicted compared with initial sample depth, should between 2-100, default is 20.}
+\item{depth}{Relative sequencing depth to be predicted compared with initial sample depth, should between 0-100, default is 20.}
 
 \item{histCounts}{Optional. Only needed when \code{sample} is blank or \code{sample = NULL}. A histogram table of raw read counts for the cell.}
 
@@ -27,7 +27,7 @@ This function is used to estimate dropout gene number in a cell for single-cell 
 data(scRecoverTest)
 
 # Estimate dropout gene number in a cell
-estDropoutNum(sample = counts[,1])
+estDropoutNum(sample = counts[,1], return = "dropoutNum")
 
 # Estimate all expressed gene number in a cell
 estDropoutNum(sample = counts[,1], return = "geneNumPredict")
@@ -35,7 +35,9 @@ estDropoutNum(sample = counts[,1], return = "geneNumPredict")
 
 }
 \seealso{
-\code{\link{scRecover}}, for the imputation of single-cell RNA-seq data.
+\code{\link{scRecover}}, for imputation of single-cell RNA-seq data.
+
+\code{\link{countsSampling}}, for downsampling the read counts in a cell.
 
 \code{\link{normalization}}, for normalization of single-cell RNA-seq data.
 
