@@ -94,8 +94,8 @@ data(scRecoverTest)
 # Run scRecover with Kcluster specified
 scRecover(counts = counts, Kcluster = 2, outputDir = "./outDir_scRecover/")
 
-# Run scRecover with labels specified
-scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
+# Or run scRecover with labels specified
+# scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
 ### 6.1.2 With SingleCellExperiment input
@@ -116,8 +116,8 @@ sce <- SingleCellExperiment(assays = list(counts = as.matrix(counts)))
 # Run scRecover with SingleCellExperiment input sce (Kcluster specified)
 scRecover(counts = sce, Kcluster = 2, outputDir = "./outDir_scRecover/")
 
-# Run scRecover with SingleCellExperiment input sce (labels specified)
-scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
+# Or run scRecover with SingleCellExperiment input sce (labels specified)
+# scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
 ## 6.2 Estimate dropout gene number in a cell
@@ -307,27 +307,19 @@ Use `browseVignettes("scRecover")` to see the vignettes of **`scRecover`** in R 
 
 Use the following code in R to get access to the help documentation for **`scRecover`**:
 
-```{r help1, eval = FALSE}
+```{r help, eval = FALSE}
 # Documentation for scRecover
 ?scRecover
-```
 
-```{r help2, eval = FALSE}
 # Documentation for estDropoutNum
 ?estDropoutNum
-```
 
-```{r help3, eval = FALSE}
 # Documentation for countsSampling
 ?countsSampling
-```
 
-```{r help4, eval = FALSE}
 # Documentation for normalization
 ?normalization
-```
 
-```{r help5, eval = FALSE}
 # Documentation for test data
 ?scRecoverTest
 ?counts
