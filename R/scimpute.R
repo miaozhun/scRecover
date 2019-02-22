@@ -16,7 +16,7 @@ function (count_path, infile = "csv", outfile = "csv", type = "count", out_dir, 
   
     # print(drop_thre)
     print("reading in raw count matrix ...")
-    dir.create(out_dir, recursive = TRUE)
+    dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
     count_lnorm = read_count(filetype = infile, path = count_path, out_dir = out_dir, 
                              type = type, genelen = genelen)
     print("reading finished!")
