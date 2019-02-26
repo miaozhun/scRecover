@@ -15,7 +15,7 @@ update_gmm_pars = function(x, wt){
     alpha0 = (3 - tp_v + sqrt((tp_v - 3)^2 + 24 * tp_v)) / 12 / tp_v
     if (alpha0 >= 20){alpha = 20
     }else{
-      alpha = uniroot(fn, c(0.9, 1.1) * alpha0, target = tp_v, 
+      alpha = uniroot(fn, c(0.9, 1.1) * alpha0, target = tp_v,
                       extendInt = "yes")$root
     }
   }
@@ -38,26 +38,26 @@ get_mix = function(xdata, point){
   eps = 10
   iter = 0
   loglik_old = 0
-  
+
   while(eps > 0.5) {
     wt = calculate_weight(xdata, paramt)
     paramt[1] = sum(wt[, 1])/nrow(wt)
     paramt[4] = sum(wt[, 2] * xdata)/sum(wt[, 2])
     paramt[5] = sqrt(sum(wt[, 2] * (xdata - paramt[4])^2)/sum(wt[, 2]))
     paramt[2:3] = update_gmm_pars(x=xdata, wt=wt[,1])
-    
+
     loglik = sum(log10(dmix(xdata, paramt)))
     eps = (loglik - loglik_old)^2
     loglik_old = loglik
     iter = iter + 1
-    if (iter > 100) 
+    if (iter > 100)
       break
   }
   return(paramt)
 }
 
 get_mix_parameters <-
-function (count, point = log10(1.01), path, ncores = 8) 
+function (count, point = log10(1.01), path, ncores = 8)
 {
     count = as.matrix(count)
     null_genes = which(abs(rowSums(count) - point * ncol(count)) < 1e-10)
@@ -71,7 +71,7 @@ function (count, point = log10(1.01), path, ncores = 8)
       }
       xdata = count[ii, ]
       paramt = try(get_mix(xdata, point), silent = TRUE)
-      if (class(paramt) == "try-error"){
+      if (is(paramt) == "try-error"){
         paramt = rep(NA, 5)
       }
       return(paramt)
