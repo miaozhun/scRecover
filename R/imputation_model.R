@@ -9,16 +9,16 @@ find_hv_genes = function(count, I, J){
   cv[is.na(cv)] = 0
   # sum(mu >= 1 & cv >= quantile(cv, 0.25), na.rm = TRUE)
   high_var_genes = which(mu >= 1 & cv >= quantile(cv, 0.25))
-  if(length(high_var_genes) < 500){ 
+  if(length(high_var_genes) < 500){
     high_var_genes = 1:I}
   count_hv = count[high_var_genes, ]
   return(count_hv)
 }
 
-find_neighbors = function(count_hv, labeled, J, Kcluster = NULL, 
+find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
                           ncores, cell_labels = NULL){
   if(labeled == TRUE){
-    if(class(cell_labels) == "character"){
+    if(is.character(cell_labels)){
       labels_uniq = unique(cell_labels)
       labels_mth = 1:length(labels_uniq)
       names(labels_mth) = labels_uniq
@@ -44,7 +44,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
         }
       }else{
         var_thre = 0.6
-        pca = rpca(t(count_hv_sub), k = 1000, center = TRUE, scale = FALSE) 
+        pca = rpca(t(count_hv_sub), k = 1000, center = TRUE, scale = FALSE)
         eigs = (pca$sdev)^2
         var_cum = cumsum(eigs)/sum(eigs)
         if(max(var_cum) <= var_thre){
@@ -54,10 +54,10 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
           if (labeled == FALSE){ npc = max(npc, Kcluster) }
         }
       }
-      
+
       if (npc < 3){ npc = 3 }
-      mat_pcs = t(pca$x[, 1:npc]) 
-      
+      mat_pcs = t(pca$x[, 1:npc])
+
       dist_cells_list = mclapply(1:length(cell_inds), function(id1){
         d = sapply(1:id1, function(id2){
           sse = sum((mat_pcs[, id1] - mat_pcs[, id2])^2)
@@ -73,7 +73,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
 
     return(list(dist_list = dist_list, clust = clust))
   }
-  
+
   if(labeled == FALSE){
     ## dimeansion reduction
     print("dimension reduction ...")
@@ -90,7 +90,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
       }
     }else{
       var_thre = 0.6
-      pca = rpca(t(count_hv), k = 1000, center = TRUE, scale = FALSE) 
+      pca = rpca(t(count_hv), k = 1000, center = TRUE, scale = FALSE)
       eigs = (pca$sdev)^2
       var_cum = cumsum(eigs)/sum(eigs)
       if(max(var_cum) <= var_thre){
@@ -102,7 +102,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
     }
     if (npc < 3){ npc = 3 }
     mat_pcs = t(pca$x[, 1:npc]) # columns are cells
-    
+
     ## detect outliers
     print("calculating cell distances ...")
     dist_cells_list = mclapply(1:J, function(id1){
@@ -115,13 +115,13 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
     dist_cells = matrix(0, nrow = J, ncol = J)
     for(cellid in 1:J){dist_cells[cellid, ] = dist_cells_list[[cellid]]}
     dist_cells = dist_cells + t(dist_cells)
-    
+
     min_dist = sapply(1:J, function(i){
       min(dist_cells[i, -i])
     })
     iqr = quantile(min_dist, 0.75) - quantile(min_dist, 0.25)
     outliers = which(min_dist > 1.5 * iqr + quantile(min_dist, 0.75))
-    
+
     ## clustering
     non_out = setdiff(1:J, outliers)
     spec_res = specc(t(mat_pcs[, non_out]), centers = Kcluster, kernel = "rbfdot")
@@ -129,7 +129,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
     print(spec_res@size)
     nbs = rep(NA, J)
     nbs[non_out] = spec_res
-    
+
     return(list(dist_cells = dist_cells, clust = nbs))
   }
 }
@@ -143,7 +143,7 @@ find_va_genes = function(parslist, subcount){
   mu = parslist[, "mu"]
   sgene1 = which(mu <= log10(1+1.01))
   # sgene2 = which(mu <= log10(10+1.01) & mu - parslist[,5] > log10(1.01))
-  
+
   dcheck1 = dgamma(mu+1, shape = parslist[, "alpha"], rate = parslist[, "beta"])
   dcheck2 = dnorm(mu+1, mean = parslist[, "mu"], sd = parslist[, "sigma"])
   sgene3 = which(dcheck1 >= dcheck2 & mu <= 1)
@@ -152,13 +152,13 @@ find_va_genes = function(parslist, subcount){
   return(valid_genes)
 }
 
-impute_nnls = function(Ic, cellid, subcount, droprate, geneid_drop, 
+impute_nnls = function(Ic, cellid, subcount, droprate, geneid_drop,
                   geneid_obs, nbs, distc){
   yobs = subcount[ ,cellid]
   if (length(geneid_drop) == 0 | length(geneid_drop) == Ic) {
-    return(yobs) }  
+    return(yobs) }
   yimpute = rep(0, Ic)
-  
+
   xx = subcount[geneid_obs, nbs]
   yy = subcount[geneid_obs, cellid]
   ximpute = subcount[geneid_drop, nbs]
@@ -171,9 +171,9 @@ impute_nnls = function(Ic, cellid, subcount, droprate, geneid_drop,
     xx = xx[, filterid, drop = FALSE]
     ximpute = ximpute[, filterid, drop = FALSE]
   }
-  set.seed(cellid)
+  # set.seed(cellid)
   nnls = penalized(yy, penalized = xx, unpenalized = ~0,
-                  positive = TRUE, lambda1 = 0, lambda2 = 0, 
+                  positive = TRUE, lambda1 = 0, lambda2 = 0,
                   maxiter = 3000, trace = FALSE)
   ynew = penalized::predict(nnls, penalized = ximpute, unpenalized = ~0)[,1]
   yimpute[geneid_drop] = ynew
@@ -184,13 +184,13 @@ impute_nnls = function(Ic, cellid, subcount, droprate, geneid_drop,
 }
 
 
-imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 10, 
+imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 10,
                              out_dir, ncores){
   count = as.matrix(count)
   I = nrow(count)
   J = ncol(count)
   count_imp = count
-  
+
   # find highly variable genes
   count_hv = find_hv_genes(count, I, J)
   print("searching candidate neighbors ... ")
@@ -209,7 +209,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
       }
     }else{
       var_thre = 0.6
-      pca = rpca(t(count_hv), k = 1000, center = TRUE, scale = FALSE) 
+      pca = rpca(t(count_hv), k = 1000, center = TRUE, scale = FALSE)
       eigs = (pca$sdev)^2
       var_cum = cumsum(eigs)/sum(eigs)
       if(max(var_cum) <= var_thre){
@@ -222,7 +222,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
 
     if (npc < 3){ npc = 3 }
     mat_pcs = t(pca$x[, 1:npc]) # columns are cells
-    
+
     dist_cells_list = mclapply(1:J, function(id1){
       d = sapply(1:id1, function(id2){
         sse = sum((mat_pcs[, id1] - mat_pcs[, id2])^2)
@@ -235,8 +235,8 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
     dist_cells = dist_cells + t(dist_cells)
   }else{
     print("inferring cell similarities ...")
-    set.seed(Kcluster)
-    neighbors_res = find_neighbors(count_hv = count_hv, labeled = FALSE, J = J, 
+    # set.seed(Kcluster)
+    neighbors_res = find_neighbors(count_hv = count_hv, labeled = FALSE, J = J,
                                    Kcluster = Kcluster, ncores = ncores)
     dist_cells = neighbors_res$dist_cells
     clust = neighbors_res$clust
@@ -247,15 +247,15 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
   nclust = sum(!is.na(unique(clust)))
   cl = makeCluster(ncores, outfile="")
   registerDoParallel(cl)
-  
+
   for(cc in 1:nclust){
     print(paste("estimating dropout probability for type", cc, "..."))
     paste0(out_dir, "pars", cc, ".rds")
-    get_mix_parameters(count = count[, which(clust == cc), drop = FALSE], 
+    get_mix_parameters(count = count[, which(clust == cc), drop = FALSE],
                        point = log10(1.01),
                        path = paste0(out_dir, "pars", cc, ".rds"), ncores = ncores)
-    
- 
+
+
     cells = which(clust == cc)
     if(length(cells) <= 1) { next }
     parslist = readRDS(paste0(out_dir, "pars", cc, ".rds"))
@@ -267,7 +267,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
     Ic = length(valid_genes)
     Jc = ncol(subcount)
     parslist = parslist[valid_genes, , drop = FALSE]
-    
+
     droprate = t(sapply(1:Ic, function(i) {
       wt = calculate_weight(subcount[i, ], parslist[i, ])
       return(wt[, 1])
@@ -285,7 +285,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
     # imputation
     gc()
     print(paste("imputing dropout values for type", cc, "..."))
-    subres = foreach(cellid = 1:Jc, .packages = c("penalized"), 
+    subres = foreach(cellid = 1:Jc, .packages = c("penalized"),
                      .combine = cbind, .export = c("impute_nnls")) %dopar% {
       if (cellid %% 10 == 0) {gc()}
       if (cellid %% 100 == 0) {print(cellid)}
@@ -293,10 +293,10 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
       if (length(nbs) == 0) {return(NULL)}
       geneid_drop = setA[[cellid]]
       geneid_obs = setB[[cellid]]
-      y = try(impute_nnls(Ic, cellid, subcount, droprate, geneid_drop, 
-                          geneid_obs, nbs, distc = dist_cells[cells, cells]), 
+      y = try(impute_nnls(Ic, cellid, subcount, droprate, geneid_drop,
+                          geneid_obs, nbs, distc = dist_cells[cells, cells]),
               silent = TRUE)
-      if (class(y) == "try-error") {
+      if (is(y) == "try-error") {
         # print(y)
         y = subcount[, cellid, drop = FALSE]
       }
@@ -310,48 +310,48 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
   return(list(count_imp = count_imp, outlier = outlier))
 }
 
-imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, drop_thre, 
+imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, drop_thre,
                                     Kcluster = NULL, out_dir, ncores){
   if(!(class(cell_labels) %in% c("character", "numeric", "integer"))){
     stop("cell_labels should be a character or integer vector!")
   }
-  
+
   count = as.matrix(count)
   I = nrow(count)
   J = ncol(count)
   count_imp = count
-  
+
   count_hv = find_hv_genes(count, I, J)
   print("searching candidate neighbors ... ")
-  neighbors_res = find_neighbors(count_hv = count_hv, labeled = TRUE, J = J,  
+  neighbors_res = find_neighbors(count_hv = count_hv, labeled = TRUE, J = J,
                                  ncores = ncores, cell_labels = cell_labels)
   dist_list = neighbors_res$dist_list
   clust = neighbors_res$clust
-  
+
   # mixture model
   nclust = sum(!is.na(unique(clust)))
   cl = makeCluster(ncores, outfile="")
   registerDoParallel(cl)
-  
+
   for(cc in 1:nclust){
     print(paste("estimating dropout probability for type", cc, "..."))
     paste0(out_dir, "pars", cc, ".rds")
-    get_mix_parameters(count = count[, which(clust == cc), drop = FALSE], 
+    get_mix_parameters(count = count[, which(clust == cc), drop = FALSE],
                        point = log10(1.01),
                        path = paste0(out_dir, "pars", cc, ".rds"), ncores = ncores)
-    
+
     cells = which(clust == cc)
     if(length(cells) <= 1){ next }
     parslist = readRDS(paste0(out_dir, "pars", cc, ".rds"))
     print("searching for valid genes ...")
     valid_genes = find_va_genes(parslist, subcount = count[, cells])
     if(length(valid_genes) <= 10){ next }
-    
+
     subcount = count[valid_genes, cells, drop = FALSE]
     Ic = length(valid_genes)
     Jc = ncol(subcount)
     parslist = parslist[valid_genes, , drop = FALSE]
-    
+
     droprate = t(sapply(1:Ic, function(i) {
       wt = calculate_weight(subcount[i, ], parslist[i, ])
       return(wt[, 1])
@@ -371,7 +371,7 @@ imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, d
     print(paste("imputing dropout values for type", cc, "..."))
 
     cellid = NULL
-    subres = foreach(cellid = 1:Jc, .packages = c("penalized"), 
+    subres = foreach(cellid = 1:Jc, .packages = c("penalized"),
                      .combine = cbind, .export = c("impute_nnls")) %dopar% {
       ##sink(paste0(out_dir, "log.txt"), append=TRUE))
       ##cat(paste("imputing dropout values for type", cc, "\n")
@@ -381,10 +381,10 @@ imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, d
       if (length(nbs) == 0) {return(NULL)}
       geneid_drop = setA[[cellid]]
       geneid_obs = setB[[cellid]]
-      y = try(impute_nnls(Ic, cellid = cellid, subcount, droprate, geneid_drop, 
+      y = try(impute_nnls(Ic, cellid = cellid, subcount, droprate, geneid_drop,
                           geneid_obs, nbs, distc = dist_list[[cc]]),
               silent = TRUE)
-      if (class(y) == "try-error") {
+      if (is(y) == "try-error") {
         # print(y)
         y = subcount[, cellid, drop = FALSE]
       }
