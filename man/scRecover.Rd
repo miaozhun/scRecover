@@ -6,7 +6,7 @@
 \usage{
 scRecover(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
   depth = 20, SAVER = FALSE, MAGIC = FALSE, UMI = FALSE,
-  hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = TRUE,
+  hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = FALSE,
   BPPARAM = bpparam())
 }
 \arguments{
@@ -30,7 +30,7 @@ scRecover(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
 
 \item{hist_RUG_counts}{A list contains the histogram table of raw UMI-gene counts for each cell in \code{counts}.}
 
-\item{parallel}{If FALSE, no parallel computation is used; if TRUE (default), parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.}
+\item{parallel}{If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.}
 
 \item{BPPARAM}{An optional parameter object passed internally to \code{\link{bplapply}} when \code{parallel=TRUE}. If not specified, \code{\link{bpparam}()} (default) will be used.}
 }
