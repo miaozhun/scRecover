@@ -296,7 +296,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
       y = try(impute_nnls(Ic, cellid, subcount, droprate, geneid_drop,
                           geneid_obs, nbs, distc = dist_cells[cells, cells]),
               silent = TRUE)
-      if (is(y) == "try-error") {
+      if ('try-error' %in% class(y)) {
         # print(y)
         y = subcount[, cellid, drop = FALSE]
       }
@@ -384,7 +384,7 @@ imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, d
       y = try(impute_nnls(Ic, cellid = cellid, subcount, droprate, geneid_drop,
                           geneid_obs, nbs, distc = dist_list[[cc]]),
               silent = TRUE)
-      if (is(y) == "try-error") {
+      if ('try-error' %in% class(y)) {
         # print(y)
         y = subcount[, cellid, drop = FALSE]
       }
