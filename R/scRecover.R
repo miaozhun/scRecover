@@ -34,8 +34,8 @@
 #' # Run scRecover with Kcluster specified
 #' scRecover(counts = counts, Kcluster = 2)
 #'
-#' # Run scRecover with labels specified
-#' scRecover(counts = counts, labels = labels)
+#' # Or run scRecover with labels specified
+#' # scRecover(counts = counts, labels = labels)
 #'
 #'
 #' @import doParallel
