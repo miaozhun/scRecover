@@ -12,7 +12,7 @@
 #' @param UMI Whether use full UMI data, default is FALSE. If TRUE, \code{hist_raw_counts} and \code{hist_RUG_counts} should be specified.
 #' @param hist_raw_counts A list contains the histogram table of raw read counts for each cell in \code{counts}.
 #' @param hist_RUG_counts A list contains the histogram table of raw UMI-gene counts for each cell in \code{counts}.
-#' @param parallel If FALSE, no parallel computation is used; if TRUE (default), parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.
+#' @param parallel If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.
 #' @param BPPARAM An optional parameter object passed internally to \code{\link{bplapply}} when \code{parallel=TRUE}. If not specified, \code{\link{bpparam}()} (default) will be used.
 #' @return
 #' Imputed counts matrices will be saved in the output directory specified by \code{outputDir}.
