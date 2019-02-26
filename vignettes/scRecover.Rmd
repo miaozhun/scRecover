@@ -49,7 +49,7 @@ devtools::install_github("miaozhun/scRecover", build_vignettes = TRUE)
 
 To load the installed **`scRecover`** in R:
 
-```{r Load scRecover, eval = FALSE}
+```{r Load scRecover, eval = TRUE}
 library(scRecover)
 ```
 
