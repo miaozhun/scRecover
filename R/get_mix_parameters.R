@@ -71,7 +71,7 @@ function (count, point = log10(1.01), path, ncores = 8)
       }
       xdata = count[ii, ]
       paramt = try(get_mix(xdata, point), silent = TRUE)
-      if (is(paramt) == "try-error"){
+      if ('try-error' %in% class(paramt)){
         paramt = rep(NA, 5)
       }
       return(paramt)
