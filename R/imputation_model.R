@@ -17,7 +17,7 @@ find_hv_genes = function(count, I, J){
 
 find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
                           ncores, cell_labels = NULL){
-  if(labeled == TRUE){
+  if(labeled){
     if(is.character(cell_labels)){
       labels_uniq = unique(cell_labels)
       labels_mth = 1:length(labels_uniq)
