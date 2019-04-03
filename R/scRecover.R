@@ -333,9 +333,9 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     write.csv(counts_SAVER_inz, file = paste0(outputDir, "scRecover+SAVER.csv"))
   if(MAGIC)
     write.csv(counts_MAGIC_inz, file = paste0(outputDir, "scRecover+MAGIC.csv"))
-  print("======================== scRecover finished ========================")
+  print("======================== scRecover finished! ========================")
   print(paste0("The output files of scRecover are in ", outputDir))
-  print("========================= Congratulations! =========================")
+  print("============================== Cheers! ==============================")
 
 }
 
