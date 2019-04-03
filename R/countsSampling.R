@@ -29,6 +29,7 @@
 #' @import foreach
 #' @import parallel
 #' @import penalized
+#' @importFrom methods is
 #' @importFrom kernlab specc
 #' @importFrom rsvd rpca
 #' @importFrom graphics hist
@@ -68,7 +69,7 @@ countsSampling <- function(counts, fraction = 0.1){
 
   # Downsample
   n <- floor(sum(counts) * fraction)
-  readsGet <- sort(sample(1:sum(counts), n))
+  readsGet <- sort(sample(seq_len(sum(counts)), n))
   cumCounts <-  c(0, cumsum(counts))
   counts_New <- counts
   counts_New[] <- hist(readsGet, breaks = cumCounts, plot=FALSE)$count
