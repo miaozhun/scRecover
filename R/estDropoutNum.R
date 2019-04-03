@@ -5,7 +5,7 @@
 #' @param sample A vector of a cell's raw read counts for each gene.
 #' @param depth Relative sequencing depth to be predicted compared with initial sample depth, should between 0-100, default is 20.
 #' @param histCounts Optional. Only needed when \code{sample} is blank or \code{sample = NULL}. A histogram table of raw read counts for the cell.
-#' @param return A character for choosing the return value type of the function. Either be "dropoutNum" (default) for dropout gene number or "geneNumPredict" for all expressed gene number predicted.
+#' @param return A character for choosing the return value type of the function. "dropoutNum" (default) for dropout gene number, "geneNumPredict" for all expressed gene number predicted, "transcriptNum" for all transcript number predicted.
 #' @return
 #' The dropout gene number (or all expressed gene number) predicted in a cell.
 #'
@@ -87,14 +87,13 @@ estDropoutNum <- function(sample = NULL, depth = 20, histCounts = NULL, return =
   suppressWarnings(preseqR <- ztnb.rSAC(histCounts))
   geneNumPredict <- round(preseqR(depth))
   dropoutNum <- geneNumPredict - sum(histCounts[,2])
-  if(return == "dropoutNum")
-    return(dropoutNum)
-  else if(return == "geneNumPredict")
+
+  if(return %in% c("geneNumPredict", "transcriptNum")){
     return(geneNumPredict)
-  else if(return == "transcriptNum")
-    return(geneNumPredict)
-  else
+  }else{
     return(dropoutNum)
+  }
+
 }
 
 
