@@ -249,6 +249,7 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 ![](10X_tSNE.png)
 
 Gene number before and after imputation:
+
 ![](10X_geneNum.png)
 
 ## 9.3 On SMART-seq data
@@ -262,6 +263,7 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 ![](SMART_tSNE.png)
 
 Gene number before and after imputation:
+
 ![](SMART_geneNum.png)
 
 # 10. Help
