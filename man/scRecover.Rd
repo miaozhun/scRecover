@@ -7,7 +7,7 @@
 scRecover(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
   depth = 20, SAVER = FALSE, MAGIC = FALSE, UMI = FALSE,
   hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = FALSE,
-  BPPARAM = bpparam())
+  BPPARAM = bpparam(), verbose = TRUE)
 }
 \arguments{
 \item{counts}{A non-negative integer matrix of scRNA-seq raw read counts or a \code{SingleCellExperiment} object which contains the read counts matrix. The rows of the matrix are genes and columns are samples/cells.}
@@ -33,6 +33,8 @@ scRecover(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
 \item{parallel}{If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.}
 
 \item{BPPARAM}{An optional parameter object passed internally to \code{\link{bplapply}} when \code{parallel=TRUE}. If not specified, \code{\link{bpparam}()} (default) will be used.}
+
+\item{verbose}{Whether to show specific calculation progress, default is TRUE.}
 }
 \value{
 Imputed counts matrices will be saved in the output directory specified by \code{outputDir}.
