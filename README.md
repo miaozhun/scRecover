@@ -2,7 +2,7 @@
 
 *Zhun Miao*
 
-*2018-05-30*
+*2019-04-03*
 
 ![logo](https://github.com/miaozhun/scRecover/blob/master/vignettes/scRecover_LOGO.png?raw=true)
 
@@ -23,16 +23,26 @@ If you use **`scRecover`** in published research, please cite:
 
 # 3. Installation
 
-To install the *developmental version* from [**GitHub**](https://github.com/miaozhun/scRecover/):
+To install **`scRecover`** from [**Bioconductor**](http://bioconductor.org/packages/scRecover/):
 
-```R
-devtools::install_github("miaozhun/scRecover", build_vignettes = TRUE)
+```{r Installation from Bioconductor, eval = FALSE}
+if(!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("scRecover")
 ```
 
-To load the installed **`scRecover`** in R:
+Or install the *developmental version* of the package from [**GitHub**](https://github.com/miaozhun/scRecover/):
 
-```R
+```{r Installation from GitHub, eval = FALSE}
+BiocManager::install("miaozhun/scRecover")
+```
+
+To load **`scRecover`** and other required packages for the vignettes in R:
+
+```{r Load scRecover, eval = TRUE}
 library(scRecover)
+library(BiocParallel)
+suppressMessages(library(SingleCellExperiment))
 ```
 
 
@@ -51,28 +61,27 @@ The input `counts` is a scRNA-seq **read counts matrix** or a **`SingleCellExper
 
 Users can load the test data in **`scRecover`** by
 
-```R
-library(scRecover)
+```{r Load scRecoverTest}
 data(scRecoverTest)
 ```
 
 The test data `counts` in `scRecoverTest` is a scRNA-seq read counts matrix which has 200 genes (rows) and 150 cells (columns).
 
-```R
+```{r counts}
 dim(counts)
 counts[1:6, 1:6]
 ```
 
 The object `labels` in `scRecoverTest` is a vector of integer specifying the cell types in the read counts matrix, corresponding to the columns of `counts`.
 
-```R
+```{r labels}
 length(labels)
 table(labels)
 ```
 
 The object `oneCell` in `scRecoverTest` is a vector of a cell's raw read counts for each gene.
 
-```R
+```{r oneCell}
 head(oneCell)
 length(oneCell)
 ```
@@ -86,16 +95,15 @@ length(oneCell)
 
 Here is an example to run **`scRecover`** with read counts matrix input:
 
-```R
+```{r demo1, eval = TRUE}
 # Load test data for scRecover
-library(scRecover)
 data(scRecoverTest)
 
 # Run scRecover with Kcluster specified
-scRecover(counts = counts, Kcluster = 2, outputDir = "./outDir_scRecover/")
+scRecover(counts = counts, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FLASE)
 
-# Run scRecover with labels specified
-scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
+# Or run scRecover with labels specified
+# scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
 ### 6.1.2 With SingleCellExperiment input
@@ -104,28 +112,25 @@ The [`SingleCellExperiment`](http://bioconductor.org/packages/SingleCellExperime
 
 Here is an example to run **`scRecover`** with `SingleCellExperiment` input:
 
-```R
-# Load library and the test data for scRecover
-library(scRecover)
-suppressMessages(library(SingleCellExperiment))
+```{r demo2, eval = TRUE}
+# Load test data for scRecover
 data(scRecoverTest)
 
 # Convert the test data in scRecover to SingleCellExperiment data representation
 sce <- SingleCellExperiment(assays = list(counts = as.matrix(counts)))
 
 # Run scRecover with SingleCellExperiment input sce (Kcluster specified)
-scRecover(counts = sce, Kcluster = 2, outputDir = "./outDir_scRecover/")
+scRecover(counts = sce, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FLASE)
 
-# Run scRecover with SingleCellExperiment input sce (labels specified)
-scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
+# Or run scRecover with SingleCellExperiment input sce (labels specified)
+# scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
 ## 6.2 Estimate dropout gene number in a cell
 Function `estDropoutNum` in the package could estimate the dropout gene number or all expressed gene number (namely observed gene number plus dropout gene number) in a cell:
 
-```R
+```{r demo3, eval = TRUE}
 # Load test data
-library(scRecover)
 data(scRecoverTest)
 
 # Downsample 10% read counts in oneCell
@@ -152,10 +157,7 @@ Imputed expression matrices of **`scRecover`** will be saved in the output direc
 
 **`scRecover`** integrates parallel computing function with [`BiocParallel`](http://bioconductor.org/packages/BiocParallel/) package. Users could just set `parallel = TRUE` (default) in function `scRecover` to enable parallelization and leave the `BPPARAM` parameter alone.
 
-```R
-# Load library
-library(scRecover)
-
+```{r demo4, eval = FALSE}
 # Run scRecover with Kcluster specified
 scRecover(counts = counts, Kcluster = 2, parallel = TRUE)
 
@@ -169,11 +171,7 @@ Advanced users could use a `BiocParallelParam` object from package `BiocParallel
 
 The best choice for Unix and Mac users is to use `MulticoreParam` to configure a multicore parallel back-end:
 
-```R
-# Load library
-library(scRecover)
-library(BiocParallel)
-
+```{r demo5, eval = FALSE}
 # Set the parameters and register the back-end to be used
 param <- MulticoreParam(workers = 18, progressbar = TRUE)
 register(param)
@@ -189,11 +187,7 @@ scRecover(counts = counts, labels = labels, parallel = TRUE, BPPARAM = param)
 
 For Windows users, use `SnowParam` to configure a Snow back-end is a good choice:
 
-```R
-# Load library
-library(scRecover)
-library(BiocParallel)
-
+```{r demo6, eval = FALSE}
 # Set the parameters and register the back-end to be used
 param <- SnowParam(workers = 8, type = "SOCK", progressbar = TRUE)
 register(param)
@@ -218,86 +212,41 @@ We evaluated SAVER, scImpute, MAGIC and their combined with scRecover version SA
 
 We found after combined with scRecover, scImpute+scRecover, SAVER+scRecover and MAGIC+scRecover will have higher accuracy than scImpute, SAVER and MAGIC respectively.
 
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Accuracy_legend.png?raw=true)
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Accuracy.png?raw=true)
 
 ### 9.1.2 Predicted dropout number
 
 We found scImpute+scRecover, SAVER+scRecover and MAGIC+scRecover will have predicted dropout numbers closer to the real dropout number than without combination with scRecover.
 
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Dropout_legend.png?raw=true)
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/Dropout.png?raw=true)
 
 ## 9.2 On 10X data
 
 We applied the 6 imputation methods to a 10X scRNA-seq dataset (https://support.10xgenomics.com/single-cell-gene-expression/datasets/3.0.0/heart_1k_v3).
 
-Then we measured the downstream clustering and visualization results by comparing to the cell labels originated from the dataset and deriving their Jaccard indexes.
+Then we measured the downstream clustering and visualization results by comparing to the cell labels originated from the dataset and deriving their Adjusted Rand Index (ARI) and Jaccard indexes (the larger, the better).
 
 We found a significant improvement of SAVER, scImpute and MAGIC after combined with scRecover.
 
-#### Raw data
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_raw_data.png?raw=true)
-<br><br>
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10X_tSNE.png?raw=true)
 
-#### SAVER
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_SAVER.png?raw=true)
-<br><br>
+Gene number before and after imputation:
 
-#### SAVER + scRecover
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_SAVER+scRecover.png?raw=true)
-<br><br>
-
-#### scImpute
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_scImpute.png?raw=true)
-<br><br>
-
-#### scImpute + scRecover
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_scImpute+scRecover.png?raw=true)
-<br><br>
-
-#### MAGIC
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_MAGIC.png?raw=true)
-<br><br>
-
-#### MAGIC + scRecover
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10x_t-SNE_MAGIC+scRecover.png?raw=true)
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10X_geneNum.png?raw=true)
 
 ## 9.3 On SMART-seq data
 
 Next, we applied the 6 imputation methods to a SMART-seq scRNA-seq dataset (Chu L, et al. Genome Biology, 2016, https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE75748).
 
-Then we measured the downstream clustering and visualization results by comparing to the cell labels originated from the dataset and deriving their Jaccard indexes.
+Then we measured the downstream clustering and visualization results by comparing to the cell labels originated from the dataset and deriving their Adjusted Rand Index (ARI) and Jaccard indexes (the larger, the better).
 
 We found a significant improvement of SAVER, scImpute and MAGIC after combined with scRecover.
 
-#### Raw data
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_raw_data.png?raw=true)
-<br><br>
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART_tSNE.png?raw=true)
 
-#### SAVER
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_SAVER.png?raw=true)
-<br><br>
+Gene number before and after imputation:
 
-#### SAVER + scRecover
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_SAVER+scRecover.png?raw=true)
-<br><br>
-
-#### scImpute
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_scImpute.png?raw=true)
-<br><br>
-
-#### scImpute + scRecover
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_scImpute+scRecover.png?raw=true)
-<br><br>
-
-#### MAGIC
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_MAGIC.png?raw=true)
-<br><br>
-
-#### MAGIC + scRecover
-![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART-seq_t-SNE_MAGIC+scRecover.png?raw=true)
-
+![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART_geneNum.png?raw=true)
 
 # 10. Help
 
@@ -305,27 +254,19 @@ Use `browseVignettes("scRecover")` to see the vignettes of **`scRecover`** in R 
 
 Use the following code in R to get access to the help documentation for **`scRecover`**:
 
-```R
+```{r help, eval = FALSE}
 # Documentation for scRecover
 ?scRecover
-```
 
-```R
 # Documentation for estDropoutNum
 ?estDropoutNum
-```
 
-```R
 # Documentation for countsSampling
 ?countsSampling
-```
 
-```R
 # Documentation for normalization
 ?normalization
-```
 
-```R
 # Documentation for test data
 ?scRecoverTest
 ?counts
