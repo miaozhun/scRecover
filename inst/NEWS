@@ -4,3 +4,10 @@ Changes in version 0.1.0 (2018-05-30)
 Changes in version 0.99.0 (2019-02-21)
 + Submitted to Bioconductor
 
+Changes in version 0.99.10 (2019-04-03)
++ Add Unit Tests to functions
++ Update vignettes
++ Made the following significant changes
+  o Change default outputDir to temporary directory
+  o Add parameter verbose to scRecover function
+
