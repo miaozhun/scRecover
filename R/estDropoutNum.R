@@ -34,6 +34,7 @@
 #' @import foreach
 #' @import parallel
 #' @import penalized
+#' @importFrom methods is
 #' @importFrom kernlab specc
 #' @importFrom rsvd rpca
 #' @importFrom graphics hist
