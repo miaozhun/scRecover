@@ -14,6 +14,7 @@
 #' @param hist_RUG_counts A list contains the histogram table of raw UMI-gene counts for each cell in \code{counts}.
 #' @param parallel If FALSE (default), no parallel computation is used; if TRUE, parallel computation using \code{BiocParallel}, with argument \code{BPPARAM}.
 #' @param BPPARAM An optional parameter object passed internally to \code{\link{bplapply}} when \code{parallel=TRUE}. If not specified, \code{\link{bpparam}()} (default) will be used.
+#' @param verbose Whether to show specific calculation progress, default is TRUE.
 #' @return
 #' Imputed counts matrices will be saved in the output directory specified by \code{outputDir}.
 #'
@@ -60,10 +61,10 @@
 
 
 
-scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = FALSE, BPPARAM = bpparam()){
+scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, depth = 20, SAVER = FALSE, MAGIC = FALSE, UMI = FALSE, hist_raw_counts = NULL, hist_RUG_counts = NULL, parallel = FALSE, BPPARAM = bpparam(), verbose = TRUE){
 
   # Handle SingleCellExperiment
-  if(class(counts)[1] == "SingleCellExperiment"){
+  if(is(counts, "SingleCellExperiment")){
     if(!requireNamespace("SingleCellExperiment"))
       stop("To use SingleCellExperiment as input, you should install the package firstly")
     counts <- counts(counts)
@@ -122,7 +123,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   if(length(UMI) != 1)
     stop("Length of 'UMI' is not one")
 
-  if(UMI == TRUE){
+  if(UMI){
     if(is.null(hist_raw_counts) | is.null(hist_RUG_counts))
       stop("'hist_raw_counts' and 'hist_RUG_counts' must be specified if UMI == TRUE")
     if(!is.list(hist_raw_counts) | !is.list(hist_RUG_counts))
@@ -138,7 +139,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
 
   # Preprocessing
   if(is.null(outputDir))
-    outputDir <- paste0("./outDir_scRecover_", gsub(" ", "-", gsub(":", "-", Sys.time())), "/")
+    outputDir <- paste0(tempdir(), "/outDir_scRecover_", gsub(" ", "-", gsub(":", "-", Sys.time())), "/")
   tempFileDir <- paste0(outputDir, "tempFile/")
   dir.create(outputDir, showWarnings = FALSE, recursive = TRUE)
   dir.create(tempFileDir, showWarnings = FALSE, recursive = TRUE)
@@ -147,7 +148,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   count_path <- paste0(outputDir, "raw_data.csv")
 
   # Run SAVER
-  if(SAVER == TRUE){
+  if(SAVER){
     print("========================== Running SAVER ==========================")
     counts_SAVER <- saver(counts, ncores = if(!parallel) 1 else detectCores() - 2)$estimate
     write.csv(counts_SAVER, file = paste0(tempFileDir, "SAVER_count.csv"))
@@ -155,7 +156,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   }
 
   # Run MAGIC
-  if(MAGIC == TRUE){
+  if(MAGIC){
     print("========================== Running MAGIC ==========================")
     counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
@@ -199,11 +200,13 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
 
   # Estimate dropout number in each cell
   if(!UMI){
-    dropoutNum <- NULL
+    dropoutNum <- rep(NA, ncol(counts_used))
     if(!parallel){
       for(i in 1:ncol(counts_used)){
-        cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells"))
-        dropoutNum <- c(dropoutNum, estDropoutNum(sample = counts_used[,i], depth = depth, histCounts = NULL, return = "dropoutNum"))
+        if(verbose){
+          cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells"))
+        }
+        dropoutNum[i] <- estDropoutNum(sample = counts_used[,i], depth = depth, histCounts = NULL, return = "dropoutNum")
       }
       names(dropoutNum) <- colnames(counts_used)
       message("\r")
@@ -215,19 +218,23 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
 
   # Estimate dropout number and transcript number in each cell (UMI)
   if(UMI){
-    dropoutNum <- NULL
-    transcriptNum <- NULL
+    dropoutNum <- rep(NA, ncol(counts_used))
+    transcriptNum <- rep(NA, ncol(counts_used))
     if(!parallel){
       for(i in 1:ncol(counts_used)){
-        cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
-        dropoutNum <- c(dropoutNum, estDropoutNum(sample = NULL, depth = depth, histCounts = hist_raw_counts[[i]], return = "dropoutNum"))
+        if(verbose){
+          cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
+        }
+        dropoutNum[i] <- estDropoutNum(sample = NULL, depth = depth, histCounts = hist_raw_counts[[i]], return = "dropoutNum")
       }
       names(dropoutNum) <- colnames(counts_used)
       message("\r")
 
       for(i in 1:ncol(counts_used)){
-        cat("\r",paste0("scRecover is estimating transcript number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
-        transcriptNum <- c(transcriptNum, estDropoutNum(sample = NULL, depth = depth, histCounts = hist_RUG_counts[[i]], return = "transcriptNum"))
+        if(verbose){
+          cat("\r",paste0("scRecover is estimating transcript number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
+        }
+        transcriptNum[i] <- estDropoutNum(sample = NULL, depth = depth, histCounts = hist_RUG_counts[[i]], return = "transcriptNum")
       }
       names(transcriptNum) <- colnames(counts_used)
       message("\r")
@@ -257,7 +264,9 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     ZINB_parameters <- NULL
     if(!parallel){
       for(i in 1:nrow(counts_norm_cc)){
-        cat("\r",paste0("scRecover is analyzing ", i, " of ", nrow(counts_norm), " genes in cluster ", cc))
+        if(verbose){
+          cat("\r",paste0("scRecover is analyzing ", i, " of ", nrow(counts_norm), " genes in cluster ", cc))
+        }
         ZINB_parameters <- rbind(ZINB_parameters, mleZINB(counts_norm_cc[i,]))
       }
       row.names(ZINB_parameters) <- row.names(counts_norm_cc)
@@ -269,12 +278,12 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     ZINB_parameters_list[[cc]] <- ZINB_parameters
 
     # Estimate dropout probability of each gene
-    P_dropout <- NULL
+    P_dropout <- rep(NA, nrow(counts_norm_cc))
     for(i in 1:nrow(counts_norm_cc)){
       if(any(is.na(ZINB_parameters[i,])))
-        P_dropout <- c(P_dropout, 0)
+        P_dropout[i] <- 0
       else
-        P_dropout <- c(P_dropout, (1 - ZINB_parameters[i, "theta"]) * dnbinom(x=0, size=ZINB_parameters[i, "size"], prob=ZINB_parameters[i, "prob"]) / (ZINB_parameters[i, "theta"] + (1 - ZINB_parameters[i, "theta"]) * dnbinom(x=0, size=ZINB_parameters[i, "size"], prob=ZINB_parameters[i, "prob"])))
+        P_dropout[i] <- (1 - ZINB_parameters[i, "theta"]) * dnbinom(x=0, size=ZINB_parameters[i, "size"], prob=ZINB_parameters[i, "prob"]) / (ZINB_parameters[i, "theta"] + (1 - ZINB_parameters[i, "theta"]) * dnbinom(x=0, size=ZINB_parameters[i, "size"], prob=ZINB_parameters[i, "prob"]))
     }
     names(P_dropout) <- row.names(counts_norm_cc)
     P_dropout_mat <- cbind(P_dropout_mat, P_dropout)
@@ -302,27 +311,30 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
 
   # Imputation with whether_impute to results of scImpute, SAVER and MAGIC
   counts_scImpute_inz <- as.matrix(counts_scImpute * whether_impute_inz)
-  if(SAVER == TRUE)
+  if(SAVER)
     counts_SAVER_inz <- as.matrix(counts_SAVER * whether_impute_inz)
-  if(MAGIC == TRUE)
+  if(MAGIC)
     counts_MAGIC_inz <- as.matrix(counts_MAGIC * whether_impute_inz)
 
   if(UMI){
     transcriptNum_all <- colSums(counts)
     transcriptNum_all[names(transcriptNum)] <- transcriptNum
     counts_scImpute_inz <- counts_scImpute_inz %*% diag(transcriptNum_all/colSums(counts_scImpute_inz))
-    if(SAVER == TRUE)
+    if(SAVER)
       counts_SAVER_inz <- counts_SAVER_inz %*% diag(transcriptNum_all/colSums(counts_SAVER_inz))
-    if(MAGIC == TRUE)
+    if(MAGIC)
       counts_MAGIC_inz <- counts_MAGIC_inz %*% diag(transcriptNum_all/colSums(counts_MAGIC_inz))
   }
 
   # Output files
-  write.csv(counts_scImpute_inz, file = paste0(outputDir, "scImpute+scRecover.csv"))
-  if(SAVER == TRUE)
-    write.csv(counts_SAVER_inz, file = paste0(outputDir, "SAVER+scRecover.csv"))
-  if(MAGIC == TRUE)
-    write.csv(counts_MAGIC_inz, file = paste0(outputDir, "MAGIC+scRecover.csv"))
+  write.csv(counts_scImpute_inz, file = paste0(outputDir, "scRecover+scImpute.csv"))
+  if(SAVER)
+    write.csv(counts_SAVER_inz, file = paste0(outputDir, "scRecover+SAVER.csv"))
+  if(MAGIC)
+    write.csv(counts_MAGIC_inz, file = paste0(outputDir, "scRecover+MAGIC.csv"))
+  print("======================== scRecover finished ========================")
+  print(paste0("The output files of scRecover are in ", outputDir))
+  print("========================= Congratulations! =========================")
 
 }
 
