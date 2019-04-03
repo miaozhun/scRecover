@@ -49,7 +49,7 @@
 # Normalization function
 normalization <- function(counts){
   # Handle SingleCellExperiment
-  if(class(counts)[1] == "SingleCellExperiment"){
+  if(is(counts, "SingleCellExperiment")){
     if(!requireNamespace("SingleCellExperiment"))
       stop("To use SingleCellExperiment as input, you should install the package firstly")
     counts <- counts(counts)
