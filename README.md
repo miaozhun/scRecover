@@ -25,7 +25,7 @@ If you use **`scRecover`** in published research, please cite:
 
 To install **`scRecover`** from [**Bioconductor**](http://bioconductor.org/packages/scRecover/):
 
-```{r Installation from Bioconductor, eval = FALSE}
+```R
 if(!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 BiocManager::install("scRecover")
@@ -33,13 +33,13 @@ BiocManager::install("scRecover")
 
 Or install the *developmental version* of the package from [**GitHub**](https://github.com/miaozhun/scRecover/):
 
-```{r Installation from GitHub, eval = FALSE}
+```R
 BiocManager::install("miaozhun/scRecover")
 ```
 
 To load **`scRecover`** and other required packages for the vignettes in R:
 
-```{r Load scRecover, eval = TRUE}
+```R
 library(scRecover)
 library(BiocParallel)
 suppressMessages(library(SingleCellExperiment))
@@ -61,27 +61,27 @@ The input `counts` is a scRNA-seq **read counts matrix** or a **`SingleCellExper
 
 Users can load the test data in **`scRecover`** by
 
-```{r Load scRecoverTest}
+```R
 data(scRecoverTest)
 ```
 
 The test data `counts` in `scRecoverTest` is a scRNA-seq read counts matrix which has 200 genes (rows) and 150 cells (columns).
 
-```{r counts}
+```R
 dim(counts)
 counts[1:6, 1:6]
 ```
 
 The object `labels` in `scRecoverTest` is a vector of integer specifying the cell types in the read counts matrix, corresponding to the columns of `counts`.
 
-```{r labels}
+```R
 length(labels)
 table(labels)
 ```
 
 The object `oneCell` in `scRecoverTest` is a vector of a cell's raw read counts for each gene.
 
-```{r oneCell}
+```R
 head(oneCell)
 length(oneCell)
 ```
@@ -95,7 +95,7 @@ length(oneCell)
 
 Here is an example to run **`scRecover`** with read counts matrix input:
 
-```{r demo1, eval = TRUE}
+```R
 # Load test data for scRecover
 data(scRecoverTest)
 
@@ -103,7 +103,7 @@ data(scRecoverTest)
 scRecover(counts = counts, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FLASE)
 
 # Or run scRecover with labels specified
-# scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
+scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
 ### 6.1.2 With SingleCellExperiment input
@@ -112,7 +112,7 @@ The [`SingleCellExperiment`](http://bioconductor.org/packages/SingleCellExperime
 
 Here is an example to run **`scRecover`** with `SingleCellExperiment` input:
 
-```{r demo2, eval = TRUE}
+```R
 # Load test data for scRecover
 data(scRecoverTest)
 
@@ -123,13 +123,13 @@ sce <- SingleCellExperiment(assays = list(counts = as.matrix(counts)))
 scRecover(counts = sce, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FLASE)
 
 # Or run scRecover with SingleCellExperiment input sce (labels specified)
-# scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
+scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
 ```
 
 ## 6.2 Estimate dropout gene number in a cell
 Function `estDropoutNum` in the package could estimate the dropout gene number or all expressed gene number (namely observed gene number plus dropout gene number) in a cell:
 
-```{r demo3, eval = TRUE}
+```R
 # Load test data
 data(scRecoverTest)
 
@@ -157,7 +157,7 @@ Imputed expression matrices of **`scRecover`** will be saved in the output direc
 
 **`scRecover`** integrates parallel computing function with [`BiocParallel`](http://bioconductor.org/packages/BiocParallel/) package. Users could just set `parallel = TRUE` (default) in function `scRecover` to enable parallelization and leave the `BPPARAM` parameter alone.
 
-```{r demo4, eval = FALSE}
+```R
 # Run scRecover with Kcluster specified
 scRecover(counts = counts, Kcluster = 2, parallel = TRUE)
 
@@ -171,7 +171,7 @@ Advanced users could use a `BiocParallelParam` object from package `BiocParallel
 
 The best choice for Unix and Mac users is to use `MulticoreParam` to configure a multicore parallel back-end:
 
-```{r demo5, eval = FALSE}
+```R
 # Set the parameters and register the back-end to be used
 param <- MulticoreParam(workers = 18, progressbar = TRUE)
 register(param)
@@ -187,7 +187,7 @@ scRecover(counts = counts, labels = labels, parallel = TRUE, BPPARAM = param)
 
 For Windows users, use `SnowParam` to configure a Snow back-end is a good choice:
 
-```{r demo6, eval = FALSE}
+```R
 # Set the parameters and register the back-end to be used
 param <- SnowParam(workers = 8, type = "SOCK", progressbar = TRUE)
 register(param)
@@ -254,7 +254,7 @@ Use `browseVignettes("scRecover")` to see the vignettes of **`scRecover`** in R 
 
 Use the following code in R to get access to the help documentation for **`scRecover`**:
 
-```{r help, eval = FALSE}
+```R
 # Documentation for scRecover
 ?scRecover
 
