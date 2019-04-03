@@ -231,6 +231,7 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10X_tSNE.png?raw=true)
 
 Gene number before and after imputation:
+
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/10X_geneNum.png?raw=true)
 
 ## 9.3 On SMART-seq data
@@ -244,6 +245,7 @@ We found a significant improvement of SAVER, scImpute and MAGIC after combined w
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART_tSNE.png?raw=true)
 
 Gene number before and after imputation:
+
 ![](https://github.com/miaozhun/scRecover/blob/master/vignettes/SMART_geneNum.png?raw=true)
 
 # 10. Help
