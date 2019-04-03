@@ -43,6 +43,7 @@
 #' @import foreach
 #' @import parallel
 #' @import penalized
+#' @importFrom methods is
 #' @importFrom kernlab specc
 #' @importFrom rsvd rpca
 #' @importFrom graphics hist
@@ -202,7 +203,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   if(!UMI){
     dropoutNum <- rep(NA, ncol(counts_used))
     if(!parallel){
-      for(i in 1:ncol(counts_used)){
+      for(i in seq_len(ncol(counts_used))){
         if(verbose){
           cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells"))
         }
@@ -221,7 +222,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     dropoutNum <- rep(NA, ncol(counts_used))
     transcriptNum <- rep(NA, ncol(counts_used))
     if(!parallel){
-      for(i in 1:ncol(counts_used)){
+      for(i in seq_len(ncol(counts_used))){
         if(verbose){
           cat("\r",paste0("scRecover is estimating dropout gene number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
         }
@@ -230,7 +231,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
       names(dropoutNum) <- colnames(counts_used)
       message("\r")
 
-      for(i in 1:ncol(counts_used)){
+      for(i in seq_len(ncol(counts_used))){
         if(verbose){
           cat("\r",paste0("scRecover is estimating transcript number in ", i, " of ", ncol(counts_used), " non-outlier cells (UMI)"))
         }
@@ -255,7 +256,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   ZINB_parameters_list <- list()
   P_dropout_cc_list <- list()
   P_dropout_mat <- NULL
-  for(cc in 1:nclust){
+  for(cc in seq_len(nclust)){
     message("Processing ", cc, " of ", nclust, " cell clusters")
     cells <- names(clust[clust %in% unique(clust[!is.na(clust)])[cc]])
     counts_norm_cc <- counts_norm[, cells, drop = FALSE]
@@ -263,7 +264,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     # ZINB MLE of each cluster gene by gene
     ZINB_parameters <- NULL
     if(!parallel){
-      for(i in 1:nrow(counts_norm_cc)){
+      for(i in seq_len(nrow(counts_norm_cc))){
         if(verbose){
           cat("\r",paste0("scRecover is analyzing ", i, " of ", nrow(counts_norm), " genes in cluster ", cc))
         }
@@ -279,7 +280,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
 
     # Estimate dropout probability of each gene
     P_dropout <- rep(NA, nrow(counts_norm_cc))
-    for(i in 1:nrow(counts_norm_cc)){
+    for(i in seq_len(nrow(counts_norm_cc))){
       if(any(is.na(ZINB_parameters[i,])))
         P_dropout[i] <- 0
       else
@@ -290,7 +291,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
 
     # Get dropout probability for each gene in each cell
     P_dropout_cc <- counts_norm_cc
-    P_dropout_cc[,1:ncol(counts_norm_cc)] <- P_dropout
+    P_dropout_cc[,seq_len(ncol(counts_norm_cc))] <- P_dropout
     P_dropout_cc[counts_norm_cc != 0] <- 0
     P_dropout_cc_list[[cc]] <- P_dropout_cc
 
@@ -299,7 +300,7 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
     whether_impute_cc <- sweep(P_dropout_rank, MARGIN = 2, dropoutNum[cells], FUN = "<=")
     whether_impute[row.names(whether_impute_cc), cells] <- whether_impute_cc
   }
-  colnames(P_dropout_mat) <- paste0("CellCluster_", 1:nclust)
+  colnames(P_dropout_mat) <- paste0("CellCluster_", seq_len(nclust))
 
   # Get whether_impute matrix for counts
   whether_impute_iz <- whether_impute
