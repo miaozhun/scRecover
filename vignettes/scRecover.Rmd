@@ -118,7 +118,7 @@ Here is an example to run **`scRecover`** with read counts matrix input:
 data(scRecoverTest)
 
 # Run scRecover with Kcluster specified
-scRecover(counts = counts, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FLASE)
+scRecover(counts = counts, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FALSE)
 
 # Or run scRecover with labels specified
 # scRecover(counts = counts, labels = labels, outputDir = "./outDir_scRecover/")
@@ -138,7 +138,7 @@ data(scRecoverTest)
 sce <- SingleCellExperiment(assays = list(counts = as.matrix(counts)))
 
 # Run scRecover with SingleCellExperiment input sce (Kcluster specified)
-scRecover(counts = sce, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FLASE)
+scRecover(counts = sce, Kcluster = 2, outputDir = "./outDir_scRecover/", verbose = FALSE)
 
 # Or run scRecover with SingleCellExperiment input sce (labels specified)
 # scRecover(counts = sce, labels = labels, outputDir = "./outDir_scRecover/")
