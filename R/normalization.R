@@ -28,6 +28,7 @@
 #' @import foreach
 #' @import parallel
 #' @import penalized
+#' @importFrom methods is
 #' @importFrom kernlab specc
 #' @importFrom rsvd rpca
 #' @importFrom graphics hist
@@ -78,14 +79,14 @@ normalization <- function(counts){
 
   # Normalization
   GEOmean <- rep(NA,geneNum_NAZ)
-  for (i in 1:geneNum_NAZ)
+  for (i in seq_len(geneNum_NAZ))
   {
     gene_NZ <- counts_NAZ[i,counts_NAZ[i,] > 0]
     GEOmean[i] <- exp(sum(log(gene_NZ), na.rm=TRUE) / length(gene_NZ))
   }
   S <- rep(NA, sampleNum)
   counts_norm <- counts_NAZ
-  for (j in 1:sampleNum)
+  for (j in seq_len(sampleNum))
   {
     sample_j <- counts_NAZ[,j]/GEOmean
     S[j] <- median(sample_j[which(sample_j != 0)])
