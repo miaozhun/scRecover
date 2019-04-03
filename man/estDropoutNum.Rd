@@ -14,7 +14,7 @@ estDropoutNum(sample = NULL, depth = 20, histCounts = NULL,
 
 \item{histCounts}{Optional. Only needed when \code{sample} is blank or \code{sample = NULL}. A histogram table of raw read counts for the cell.}
 
-\item{return}{A character for choosing the return value type of the function. Either be "dropoutNum" (default) for dropout gene number or "geneNumPredict" for all expressed gene number predicted.}
+\item{return}{A character for choosing the return value type of the function. "dropoutNum" (default) for dropout gene number, "geneNumPredict" for all expressed gene number predicted, "transcriptNum" for all transcript number predicted.}
 }
 \value{
 The dropout gene number (or all expressed gene number) predicted in a cell.
