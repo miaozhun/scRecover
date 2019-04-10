@@ -5,10 +5,10 @@ scimpute <-
 function (count_path, infile = "csv", outfile = "csv", type = "count", out_dir, labeled = FALSE,
           drop_thre = 0.5, Kcluster = NULL, labels = NULL, genelen = NULL, ncores = 5)
 {
-    if(labeled == TRUE & is.null(labels)){
+    if(labeled & is.null(labels)){
       stop("'labels' must be specified when 'labeled = TRUE'!")
     }
-    if(labeled == FALSE & is.null(Kcluster)){
+    if(!labeled & is.null(Kcluster)){
       stop("'Kcluster' must be specified when 'labeled = FALSE'!")
     }
     if(!(type %in% c("count", "TPM"))){ stop("expression values can be either 'count' or 'TPM'!") }
