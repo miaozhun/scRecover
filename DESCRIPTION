@@ -13,7 +13,7 @@ Description: scRecover is an R package for imputation of single-cell RNA-seq (sc
     visualization results.
 License: GPL
 Encoding: UTF-8
-Depends: R (>= 3.6.0)
+Depends: R (>= 3.4.0)
 Imports:
     stats,
     utils,
