@@ -7,7 +7,7 @@
 countsSampling(counts, fraction = 0.1)
 }
 \arguments{
-\item{counts}{A vector of a cell's raw read counts for each gene.}
+\item{counts}{A cell's raw read counts for each gene, could be a vector or a SingleCellExperiment object.}
 
 \item{fraction}{Fraction of reads to be downsampled, should be between 0-1, default is 0.1.}
 }
