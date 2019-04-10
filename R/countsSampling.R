@@ -2,7 +2,7 @@
 #'
 #' This function is used to downsample the read counts in a cell for single-cell RNA-seq (scRNA-seq) data. It takes a non-negative vector of scRNA-seq raw read counts of a cell as input.
 #'
-#' @param counts A vector of a cell's raw read counts for each gene.
+#' @param counts A cell's raw read counts for each gene, could be a vector or a SingleCellExperiment object.
 #' @param fraction Fraction of reads to be downsampled, should be between 0-1, default is 0.1.
 #' @return
 #' A vector of the downsampled read counts of each gene in the cell.
@@ -50,6 +50,16 @@
 
 # Downsampling the read counts in a cell
 countsSampling <- function(counts, fraction = 0.1){
+  # Handle SingleCellExperiment
+  if(is(counts, "SingleCellExperiment")){
+    if(!requireNamespace("SingleCellExperiment"))
+      stop("To use SingleCellExperiment as input, you should install the package firstly")
+    if(dim(counts)[2] != 1)
+      stop("'counts' should only contain one cell")
+    else
+      counts <- counts(counts)
+  }
+  
   # Invalid input control
   if(!is.vector(counts) & !is.data.frame(counts) & !is.matrix(counts) & class(counts)[1] != "dgCMatrix" & !is.integer(counts) & !is.numeric(counts) & !is.double(counts))
     stop("Wrong data type of 'counts'")
