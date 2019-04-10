@@ -16,7 +16,7 @@ scRecover(counts, Kcluster = NULL, labels = NULL, outputDir = NULL,
 
 \item{labels}{Optional. Only needed when \code{Kcluster} is blank or \code{Kcluster = NULL}. A character/integer vector specifying the cell type of each column in the raw count matrix. Each cell type should have at least two cells.}
 
-\item{outputDir}{The path of the output directory. If not specified, a folder named with prefix 'outDir_scRecover_' under the current working directory will be used.}
+\item{outputDir}{The path of the output directory. If not specified, a folder named with prefix 'outDir_scRecover_' under the temporary directory will be used.}
 
 \item{depth}{Relative sequencing depth to be predicted compared with initial sample depth, should between 2-100, default is 20.}
 
