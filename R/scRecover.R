@@ -5,7 +5,7 @@
 #' @param counts A non-negative integer matrix of scRNA-seq raw read counts or a \code{SingleCellExperiment} object which contains the read counts matrix. The rows of the matrix are genes and columns are samples/cells.
 #' @param Kcluster An integer specifying the number of cell subpopulations. This parameter can be determined based on prior knowledge or clustering of raw data. \code{Kcluster} is used to determine the candidate neighbors of each cell.
 #' @param labels Optional. Only needed when \code{Kcluster} is blank or \code{Kcluster = NULL}. A character/integer vector specifying the cell type of each column in the raw count matrix. Each cell type should have at least two cells.
-#' @param outputDir The path of the output directory. If not specified, a folder named with prefix 'outDir_scRecover_' under the current working directory will be used.
+#' @param outputDir The path of the output directory. If not specified, a folder named with prefix 'outDir_scRecover_' under the temporary directory will be used.
 #' @param depth Relative sequencing depth to be predicted compared with initial sample depth, should between 2-100, default is 20.
 #' @param SAVER Whether use and improve SAVER in imputation, default is FALSE.
 #' @param MAGIC Whether use and improve MAGIC in imputation, default is FALSE.
@@ -334,7 +334,8 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   if(MAGIC)
     write.csv(counts_MAGIC_inz, file = paste0(outputDir, "scRecover+MAGIC.csv"))
   print("======================== scRecover finished! ========================")
-  print(paste0("The output files of scRecover are in ", outputDir))
+  print("The output files of scRecover are in directory:")
+  print(outputDir)
   print("============================== Cheers! ==============================")
 
 }
