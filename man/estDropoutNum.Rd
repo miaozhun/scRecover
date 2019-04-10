@@ -8,7 +8,7 @@ estDropoutNum(sample = NULL, depth = 20, histCounts = NULL,
   return = "dropoutNum")
 }
 \arguments{
-\item{sample}{A vector of a cell's raw read counts for each gene.}
+\item{sample}{A cell's raw read counts for each gene, could be a vector or a SingleCellExperiment object.}
 
 \item{depth}{Relative sequencing depth to be predicted compared with initial sample depth, should between 0-100, default is 20.}
 
