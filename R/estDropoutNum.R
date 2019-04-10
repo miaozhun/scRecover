@@ -2,7 +2,7 @@
 #'
 #' This function is used to estimate dropout gene number in a cell for single-cell RNA-seq (scRNA-seq) data. It takes a non-negative vector of scRNA-seq raw read counts of a cell as input.
 #'
-#' @param sample A vector of a cell's raw read counts for each gene.
+#' @param sample A cell's raw read counts for each gene, could be a vector or a SingleCellExperiment object.
 #' @param depth Relative sequencing depth to be predicted compared with initial sample depth, should between 0-100, default is 20.
 #' @param histCounts Optional. Only needed when \code{sample} is blank or \code{sample = NULL}. A histogram table of raw read counts for the cell.
 #' @param return A character for choosing the return value type of the function. "dropoutNum" (default) for dropout gene number, "geneNumPredict" for all expressed gene number predicted, "transcriptNum" for all transcript number predicted.
@@ -55,6 +55,16 @@
 
 # Estimate dropout gene number in a cell
 estDropoutNum <- function(sample = NULL, depth = 20, histCounts = NULL, return = "dropoutNum"){
+  # Handle SingleCellExperiment
+  if(is(sample, "SingleCellExperiment")){
+    if(!requireNamespace("SingleCellExperiment"))
+      stop("To use SingleCellExperiment as input, you should install the package firstly")
+    if(dim(sample)[2] != 1)
+      stop("'sample' should only contain one cell")
+    else
+      sample <- counts(sample)
+  }
+  
   # Invalid input control
   if(is.null(sample) & is.null(histCounts))
     stop("One of 'sample' and 'histCounts' must be specified")
