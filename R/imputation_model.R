@@ -40,7 +40,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
           npc = length(var_cum)
         }else{
           npc = which.max(var_cum > var_thre)
-          if (labeled == FALSE){ npc = max(npc, Kcluster) }
+          if (!labeled){ npc = max(npc, Kcluster) }
         }
       }else{
         var_thre = 0.6
@@ -51,7 +51,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
           npc = length(var_cum)
         }else{
           npc = which.max(var_cum > var_thre)
-          if (labeled == FALSE){ npc = max(npc, Kcluster) }
+          if (!labeled){ npc = max(npc, Kcluster) }
         }
       }
 
@@ -74,7 +74,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
     return(list(dist_list = dist_list, clust = clust))
   }
 
-  if(labeled == FALSE){
+  if(!labeled){
     ## dimeansion reduction
     print("dimension reduction ...")
     if(J < 5000){
@@ -86,7 +86,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
         npc = length(var_cum)
       }else{
         npc = which.max(var_cum > var_thre)
-        if (labeled == FALSE){ npc = max(npc, Kcluster) }
+        if (!labeled){ npc = max(npc, Kcluster) }
       }
     }else{
       var_thre = 0.6
@@ -97,7 +97,7 @@ find_neighbors = function(count_hv, labeled, J, Kcluster = NULL,
         npc = length(var_cum)
       }else{
         npc = which.max(var_cum > var_thre)
-        if (labeled == FALSE){ npc = max(npc, Kcluster) }
+        if (!labeled){ npc = max(npc, Kcluster) }
       }
     }
     if (npc < 3){ npc = 3 }
@@ -205,7 +205,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
         npc = length(var_cum)
       }else{
         npc = which.max(var_cum > var_thre)
-        if (labeled == FALSE){ npc = max(npc, Kcluster) }
+        if (!labeled){ npc = max(npc, Kcluster) }
       }
     }else{
       var_thre = 0.6
@@ -216,7 +216,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
         npc = length(var_cum)
       }else{
         npc = which.max(var_cum > var_thre)
-        if (labeled == FALSE){ npc = max(npc, Kcluster) }
+        if (!labeled){ npc = max(npc, Kcluster) }
       }
     }
 
