@@ -1,7 +1,7 @@
 ---
 title: "scRecover"
-author: "Zhun Miao"
-date: "2019-04-03"
+author: "Zhun Miao, Xuegong Zhang"
+date: "2019-04-20"
 output: 
   html_document:
     toc: TRUE
@@ -297,7 +297,7 @@ You are also welcome to contact the author by email for help.
 
 # 11. Author
 
-*Zhun Miao* <<miaoz13@mails.tsinghua.edu.cn>>
+*Zhun Miao, Xuegong Zhang* <<zhangxg@tsinghua.edu.cn>>
 
 MOE Key Laboratory of Bioinformatics; Bioinformatics Division and Center for Synthetic & Systems Biology, TNLIST; Department of Automation, Tsinghua University, Beijing 100084, China.
 
