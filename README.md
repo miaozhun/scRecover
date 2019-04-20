@@ -39,7 +39,7 @@ if(!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("scRecover", version = "devel")
 ```
 
-Or install the *developmental version* of the package from [**GitHub**](https://github.com/miaozhun/scRecover/):
+Or install the *developmental version* from [**GitHub**](https://github.com/miaozhun/scRecover/):
 
 ```R
 if(!requireNamespace("BiocManager", quietly = TRUE))
