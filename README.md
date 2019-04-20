@@ -1,8 +1,8 @@
 # scRecover
 
-*Zhun Miao*
+*Zhun Miao, Xuegong Zhang*
 
-*2019-04-03*
+*2019-04-20*
 
 ![logo](https://github.com/miaozhun/scRecover/blob/master/vignettes/scRecover_LOGO.png?raw=true)
 
@@ -279,7 +279,7 @@ You are also welcome to contact the author by email for help.
 
 # 11. Author
 
-*Zhun Miao* <<miaoz13@mails.tsinghua.edu.cn>>
+*Zhun Miao, Xuegong Zhang* <zhangxg@tsinghua.edu.cn>
 
 MOE Key Laboratory of Bioinformatics; Bioinformatics Division and Center for Synthetic & Systems Biology, TNLIST; Department of Automation, Tsinghua University, Beijing 100084, China.
 
