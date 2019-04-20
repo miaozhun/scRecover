@@ -16,3 +16,6 @@ Changes in version 0.99.14 (2019-04-20)
 + Resume use set.seed in scImpute (imputation_model.R)
 + Update vignettes
 
+Changes in version 1.0.0 (2019-05-01)
++ Package released
+
