@@ -27,13 +27,23 @@ To install **`scRecover`** from [**Bioconductor**](http://bioconductor.org/packa
 
 ```R
 if(!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 BiocManager::install("scRecover")
+```
+
+To install the *developmental version* from [**Bioconductor**](https://bioconductor.org/packages/devel/bioc/html/scRecover.html):
+
+```R
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("scRecover", version = "devel")
 ```
 
 Or install the *developmental version* of the package from [**GitHub**](https://github.com/miaozhun/scRecover/):
 
 ```R
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 BiocManager::install("miaozhun/scRecover")
 ```
 
