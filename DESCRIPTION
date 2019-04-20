@@ -1,7 +1,7 @@
 Package: scRecover
 Type: Package
 Title: scRecover for imputation of single-cell RNA-seq data
-Version: 0.99.14
+Version: 0.99.15
 Date: 2019-04-20
 Author: Zhun Miao, Xuegong Zhang <zhangxg@tsinghua.edu.cn>
 Maintainer: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
