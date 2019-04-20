@@ -171,7 +171,7 @@ impute_nnls = function(Ic, cellid, subcount, droprate, geneid_drop,
     xx = xx[, filterid, drop = FALSE]
     ximpute = ximpute[, filterid, drop = FALSE]
   }
-  # set.seed(cellid)
+  set.seed(cellid)
   nnls = penalized(yy, penalized = xx, unpenalized = ~0,
                   positive = TRUE, lambda1 = 0, lambda2 = 0,
                   maxiter = 3000, trace = FALSE)
@@ -235,7 +235,7 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
     dist_cells = dist_cells + t(dist_cells)
   }else{
     print("inferring cell similarities ...")
-    # set.seed(Kcluster)
+    set.seed(Kcluster)
     neighbors_res = find_neighbors(count_hv = count_hv, labeled = FALSE, J = J,
                                    Kcluster = Kcluster, ncores = ncores)
     dist_cells = neighbors_res$dist_cells
@@ -245,8 +245,8 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
   saveRDS(clust, file = paste0(out_dir, "clust.rds"))
   # mixture model
   nclust = sum(!is.na(unique(clust)))
-  cl = makeCluster(ncores, outfile="")
-  registerDoParallel(cl)
+  # cl = makeCluster(ncores, outfile="")
+  # registerDoParallel(cl)
 
   for(cc in seq_len(nclust)){
     print(paste("estimating dropout probability for type", cc, "..."))
@@ -285,6 +285,8 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
     # imputation
     gc()
     print(paste("imputing dropout values for type", cc, "..."))
+    cl = makeCluster(ncores, outfile="")
+    registerDoParallel(cl)
     subres = foreach(cellid = seq_len(Jc), .packages = c("penalized"),
                      .combine = cbind, .export = c("impute_nnls")) %dopar% {
       if (cellid %% 10 == 0) {gc()}
@@ -302,9 +304,10 @@ imputation_model8 = function(count, labeled, point, drop_thre = 0.5, Kcluster = 
       }
       return(y)
     }
+    stopCluster(cl)
     count_imp[valid_genes, cells] = subres
   }
-  stopCluster(cl)
+  # stopCluster(cl)
   outlier = which(is.na(clust))
   count_imp[count_imp < point] = point
   return(list(count_imp = count_imp, outlier = outlier))
@@ -330,8 +333,8 @@ imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, d
 
   # mixture model
   nclust = sum(!is.na(unique(clust)))
-  cl = makeCluster(ncores, outfile="")
-  registerDoParallel(cl)
+  # cl = makeCluster(ncores, outfile="")
+  # registerDoParallel(cl)
 
   for(cc in seq_len(nclust)){
     print(paste("estimating dropout probability for type", cc, "..."))
@@ -369,7 +372,8 @@ imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, d
     # imputation
     gc()
     print(paste("imputing dropout values for type", cc, "..."))
-
+    cl = makeCluster(ncores, outfile="")
+    registerDoParallel(cl)
     cellid = NULL
     subres = foreach(cellid = seq_len(Jc), .packages = c("penalized"),
                      .combine = cbind, .export = c("impute_nnls")) %dopar% {
@@ -390,9 +394,10 @@ imputation_wlabel_model8 = function(count, labeled, cell_labels = NULL, point, d
       }
       return(y)
     }
+    stopCluster(cl)
     count_imp[valid_genes, cells] = subres
   }
-  stopCluster(cl)
+  # stopCluster(cl)
   outlier = integer(0)
   count_imp[count_imp < point] = point
   return(list(count_imp = count_imp, outlier = outlier))
