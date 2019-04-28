@@ -1,7 +1,7 @@
 ---
 title: "scRecover"
 author: "Zhun Miao, Xuegong Zhang"
-date: "2019-04-20"
+date: "2019-04-28"
 output: 
   html_document:
     toc: TRUE
