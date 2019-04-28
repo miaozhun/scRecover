@@ -2,7 +2,7 @@
 
 *Zhun Miao, Xuegong Zhang*
 
-*2019-04-20*
+*2019-04-28*
 
 ![logo](https://github.com/miaozhun/scRecover/blob/master/vignettes/scRecover_LOGO.png?raw=true)
 
