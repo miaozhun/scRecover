@@ -3,6 +3,6 @@ description: Modest imputation for single-cell RNA-seq data
 show_downloads: true
 github:
   is_project_page: true
-  repository_url: https://github.com/miaozhun/scRecover
-  zip_url: https://doi.org/10.1093/bioinformatics/bty332
-  tar_url: https://bioconductor.org/packages/scRecover
+  repository_url: https://bioconductor.org/packages/scRecover
+  zip_url: https://github.com/miaozhun/scRecover
+  tar_url: https://rebrand.ly/scRecover_source
