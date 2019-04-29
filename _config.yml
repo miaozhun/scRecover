@@ -1,4 +1,5 @@
 theme: jekyll-theme-cayman
+description: Modest imputation for single-cell RNA-seq data
 show_downloads: true
 github:
   is_project_page: true
