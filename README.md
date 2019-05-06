@@ -4,6 +4,12 @@
 
 *2019-05-05*
 
+[![build](https://bioconductor.org/shields/build/release/bioc/scRecover.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/scRecover/)
+[![platform](https://bioconductor.org/shields/availability/3.9/scRecover.svg)](https://miaozhun.github.io/scRecover/#downloads)
+[![inBioC](https://bioconductor.org/shields/years-in-bioc/scRecover.svg)](https://bioconductor.org/packages/scRecover/)
+[![updated](https://bioconductor.org/shields/lastcommit/release/bioc/scRecover.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/scRecover/)
+[![downloads](https://bioconductor.org/shields/downloads/scRecover.svg)](https://rebrand.ly/scRecover_source)
+
 ![logo](https://github.com/miaozhun/scRecover/blob/master/vignettes/scRecover_LOGO.png?raw=true)
 
 
