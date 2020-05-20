@@ -1,10 +1,10 @@
 Package: scRecover
 Type: Package
 Title: scRecover for imputation of single-cell RNA-seq data
-Version: 1.5.0
+Version: 1.5.1
 Date: 2019-04-28
 Author: Zhun Miao, Xuegong Zhang <zhangxg@tsinghua.edu.cn>
-Maintainer: Zhun Miao <miaoz13@mails.tsinghua.edu.cn>
+Maintainer: Zhun Miao <miaoz13@tsinghua.org.cn>
 Description: scRecover is an R package for imputation of single-cell RNA-seq (scRNA-seq) data.
     It will detect and impute dropout values in a scRNA-seq raw read counts matrix while 
     keeping the real zeros unchanged, since there are both dropout zeros and real zeros in 
