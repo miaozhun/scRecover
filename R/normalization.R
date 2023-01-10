@@ -41,7 +41,6 @@
 #' @importFrom gamlss gamlssML
 #' @importFrom preseqR ztnb.rSAC
 #' @importFrom SAVER saver
-#' @importFrom Rmagic magic
 #' @importFrom BiocParallel bpparam bplapply
 #' @export
 
