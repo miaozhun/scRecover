@@ -56,7 +56,6 @@
 #' @importFrom gamlss gamlssML
 #' @importFrom preseqR ztnb.rSAC
 #' @importFrom SAVER saver
-#' @importFrom Rmagic magic
 #' @importFrom BiocParallel bpparam bplapply
 #' @export
 
@@ -159,7 +158,9 @@ scRecover <- function(counts, Kcluster = NULL, labels = NULL, outputDir = NULL, 
   # Run MAGIC
   if(MAGIC){
     print("========================== Running MAGIC ==========================")
-    counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
+	print("Rmagic is not available now...")
+    # counts_MAGIC <- t(magic(t(counts), n.jobs = if(!parallel) 1 else -3)[[1]])
+	counts_MAGIC <- counts
     write.csv(counts_MAGIC, file = paste0(tempFileDir, "MAGIC_count.csv"))
     print("========================== MAGIC finished =========================")
   }
